@@ -216,7 +216,7 @@ public class LoginWindow : Window
         Principal canisterId = Principal.FromText("bkyz2-fmaaa-aaaaa-qaaaq-cai");
         var client = new SoccerSimClientApiClient(agent, canisterId);
         //OptionalValue< SoccerSim.SoccerSimClient.Models.Result> proposalInfo = await client.PlayMatch(110174);
-        var result = await client.PlayMatch(110174);
+        var result = await client.PlayMatch((ulong) DateTime.Now.Millisecond);// 110174);
         PlayerPrefs.SetString("snapshot", result);
         SceneManager.LoadScene("MatchField", LoadSceneMode.Single);
     }

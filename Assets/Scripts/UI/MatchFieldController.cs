@@ -6,6 +6,7 @@ public class MatchFieldController : MonoBehaviour
 {
     public GameObject homePlayerPrefab;
     public GameObject awayPlayerPrefab;
+    public GameObject ballPrefab;
 
     public GameObject[] fieldObjects = new GameObject[11];
 
@@ -14,7 +15,7 @@ public class MatchFieldController : MonoBehaviour
 
     int currentscrn = 0;
     int rndrcount = 0;
-    int RNDRRATE = 10;
+    int RNDRRATE = 60;
 
     static float unitperpixel = 64f;
     float xScale = 1f / unitperpixel;
@@ -30,17 +31,20 @@ public class MatchFieldController : MonoBehaviour
         screensnaps = ScreenSnaps.CreateFromJSON(snapshot.snapshot);
 
         ScreenSnap scrn = screensnaps.scrnsnaps[currentscrn++];
+        fieldObjects[0] = Instantiate(ballPrefab,
+            new Vector3(scrn.scrn[0].p[0] * xScale, scrn.scrn[0].p[1] * yScale, scrn.scrn[0].p[2] * zScale),
+             Quaternion.identity);// new Quaternion(scrn.scrn[0].h[0], scrn.scrn[0].h[1], 1, 1));
         for (int i = 1; i < 6; i++)
         {
             fieldObjects[i] = Instantiate(homePlayerPrefab, 
-                new Vector3(scrn.scrn[i].p[0] * xScale, scrn.scrn[i].p[1] * yScale, scrn.scrn[i].p[2]*zScale), 
-                Quaternion.identity);
+                new Vector3(scrn.scrn[i].p[0] * xScale, scrn.scrn[i].p[1] * yScale, scrn.scrn[i].p[2]*zScale),
+                 Quaternion.identity);// new Quaternion(scrn.scrn[i].h[0], scrn.scrn[i].h[1], 1, 1));
         }
         for (int i = 6; i < 11; i++)
         {
             fieldObjects[i] = Instantiate(awayPlayerPrefab,
                 new Vector3(scrn.scrn[i].p[0] * xScale, scrn.scrn[i].p[1] * yScale, scrn.scrn[i].p[2] * zScale),
-                Quaternion.identity);
+                Quaternion.identity);// new Quaternion(scrn.scrn[i].h[0], scrn.scrn[i].h[1], 1, 1));
         }
     }
 
@@ -53,10 +57,13 @@ public class MatchFieldController : MonoBehaviour
         }
             
         ScreenSnap scrn = screensnaps.scrnsnaps[currentscrn++];
-        for (int i = 1; i < 11; i++)
+        for (int i = 0; i < 11; i++)
         {
             fieldObjects[i].gameObject.transform.position =
                 new Vector3(scrn.scrn[i].p[0] * xScale, scrn.scrn[i].p[1] * yScale, scrn.scrn[i].p[2] * zScale);
+
+            fieldObjects[i].gameObject.transform.right =
+                new Vector3(scrn.scrn[i].h[0], scrn.scrn[i].h[1], 1);
         }
     }
 }

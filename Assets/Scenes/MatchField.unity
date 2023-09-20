@@ -154,6 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   homePlayerPrefab: {fileID: 1048920664287569531, guid: ac06cbe69e164f8428521414ae62aaf3, type: 3}
   awayPlayerPrefab: {fileID: 1657729139586849702, guid: 37a321738e7ad864a8b98c33cc131801, type: 3}
+  ballPrefab: {fileID: 6535408190517906124, guid: ad3e99cf87be96c49b9f70741c2d26dd, type: 3}
   fieldObjects:
   - {fileID: 0}
   - {fileID: 0}
