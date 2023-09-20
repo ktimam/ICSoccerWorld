@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MatchFieldController : MonoBehaviour
 {
@@ -51,7 +52,13 @@ public class MatchFieldController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(screensnaps.scrnsnaps.Length <= currentscrn || rndrcount++ % RNDRRATE != 1)
+        if (screensnaps.scrnsnaps.Length <= currentscrn)
+        {
+            // load the previous scene
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+            return;
+        }
+        if (rndrcount++ % RNDRRATE != 1)
         {
             return;
         }
@@ -63,7 +70,7 @@ public class MatchFieldController : MonoBehaviour
                 new Vector3(scrn.scrn[i].p[0] * xScale, scrn.scrn[i].p[1] * yScale, scrn.scrn[i].p[2] * zScale);
 
             fieldObjects[i].gameObject.transform.right =
-                new Vector3(scrn.scrn[i].h[0], scrn.scrn[i].h[1], 1);
+                new Vector3(scrn.scrn[i].h[0], -scrn.scrn[i].h[1], 0);
         }
     }
 }
