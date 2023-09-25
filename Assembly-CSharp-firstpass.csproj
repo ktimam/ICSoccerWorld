@@ -137,12 +137,14 @@
     <Compile Include="Assets\Plugins\websocket-sharp\Net\Cookie.cs" />
     <Compile Include="Assets\Plugins\websocket-sharp\Server\WebSocketSessionManager.cs" />
     <Compile Include="Assets\Plugins\websocket-sharp\PayloadData.cs" />
+    <Compile Include="Assets\Plugins\ICP.Net\WebGlBlsCryptography.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Plugins\ICP.Net\System.Formats.Cbor.dll" />
     <None Include="Assets\Plugins\ICP.Net\API.xml" />
     <None Include="Assets\Plugins\URIUtility.dll" />
     <None Include="Assets\Plugins\ICP.Net\BouncyCastle.Cryptography.dll" />
+    <None Include="Assets\Plugins\ICP.Net\Wasmtime.Dotnet.dll" />
     <None Include="Assets\Plugins\ICP.Net\System.Runtime.CompilerServices.Unsafe.dll" />
     <None Include="Assets\Plugins\CBOR.xml" />
     <None Include="Assets\Plugins\CBOR.dll" />
@@ -150,11 +152,13 @@
     <None Include="Assets\Plugins\Numbers.dll" />
     <None Include="Assets\Plugins\Numbers.xml" />
     <None Include="Assets\Plugins\ICP.Net\System.Memory.dll" />
+    <None Include="Assets\Plugins\ICP.Net\EdjCase.ICP.BLS.dll" />
     <None Include="Assets\Plugins\ICP.Net\EdjCase.ICP.Agent.dll" />
     <None Include="Assets\Plugins\URIUtility.xml" />
     <None Include="Assets\Plugins\ICP.Net\System.Formats.Asn1.dll" />
     <None Include="Assets\Plugins\ICP.Net\EdjCase.ICP.Candid.dll" />
     <None Include="Assets\Plugins\ICP.Net\System.Numerics.Vectors.dll" />
+    <None Include="Assets\Plugins\ICP.Net\win-x64\wasmtime.dll" />
     <None Include="Assets\Plugins\ICP.Net\System.Buffers.dll" />
   </ItemGroup>
   <ItemGroup>
@@ -457,6 +461,12 @@
     </Reference>
     <Reference Include="EdjCase.ICP.Candid">
       <HintPath>Assets\Plugins\ICP.Net\EdjCase.ICP.Candid.dll</HintPath>
+    </Reference>
+    <Reference Include="EdjCase.ICP.BLS">
+      <HintPath>Assets\Plugins\ICP.Net\EdjCase.ICP.BLS.dll</HintPath>
+    </Reference>
+    <Reference Include="Wasmtime.Dotnet">
+      <HintPath>Assets\Plugins\ICP.Net\Wasmtime.Dotnet.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2021.3.18f1\Editor\Data\NetStandard\ref\2.1.0\netstandard.dll</HintPath>

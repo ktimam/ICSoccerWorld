@@ -463,6 +463,12 @@
     <Reference Include="EdjCase.ICP.Candid">
       <HintPath>Assets\Plugins\ICP.Net\EdjCase.ICP.Candid.dll</HintPath>
     </Reference>
+    <Reference Include="EdjCase.ICP.BLS">
+      <HintPath>Assets\Plugins\ICP.Net\EdjCase.ICP.BLS.dll</HintPath>
+    </Reference>
+    <Reference Include="Wasmtime.Dotnet">
+      <HintPath>Assets\Plugins\ICP.Net\Wasmtime.Dotnet.dll</HintPath>
+    </Reference>
     <Reference Include="netstandard">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2021.3.18f1\Editor\Data\NetStandard\ref\2.1.0\netstandard.dll</HintPath>
     </Reference>

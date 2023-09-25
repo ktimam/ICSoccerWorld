@@ -23,6 +23,7 @@ public class LoginWindow : Window
     public class WindowData
     {
     }
+    public bool live;
     public Button incrementBtn;
     public Button doubleBtn;
     public Button getBtn;
@@ -208,14 +209,20 @@ public class LoginWindow : Window
 
     private async void PlayMatch()
     {
-        var httpClient = new DefaultHttpClient(new HttpClient
+        var agent = new HttpAgent();
+        //ic network
+        Principal canisterId = Principal.FromText("pcxn6-vyaaa-aaaal-ac2xq-cai");
+        if(!live)
         {
-            BaseAddress = (new Uri("http://localhost:40435"))
-        });// "http://localhost:4943");
-        var agent = new HttpAgent(httpClient);
-        Principal canisterId = Principal.FromText("bkyz2-fmaaa-aaaaa-qaaaq-cai");
+            var httpClient = new DefaultHttpClient(new HttpClient
+            {
+                BaseAddress = (new Uri("http://localhost:40435"))
+            });
+            agent = new HttpAgent(httpClient);
+            //Local network
+            canisterId = Principal.FromText("bkyz2-fmaaa-aaaaa-qaaaq-cai");
+        }
         var client = new SoccerSimClientApiClient(agent, canisterId);
-        //OptionalValue< SoccerSim.SoccerSimClient.Models.Result> proposalInfo = await client.PlayMatch(110174);
         var result = await client.PlayMatch((ulong) DateTime.Now.Millisecond);// 110174);
         PlayerPrefs.SetString("snapshot", result);
         SceneManager.LoadScene("MatchField", LoadSceneMode.Single);

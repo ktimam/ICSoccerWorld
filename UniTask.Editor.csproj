@@ -398,6 +398,12 @@
     <Reference Include="EdjCase.ICP.Candid">
       <HintPath>Assets\Plugins\ICP.Net\EdjCase.ICP.Candid.dll</HintPath>
     </Reference>
+    <Reference Include="EdjCase.ICP.BLS">
+      <HintPath>Assets\Plugins\ICP.Net\EdjCase.ICP.BLS.dll</HintPath>
+    </Reference>
+    <Reference Include="Wasmtime.Dotnet">
+      <HintPath>Assets\Plugins\ICP.Net\Wasmtime.Dotnet.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>Library\PackageCache\com.unity.ext.nunit@1.0.6\net35\unity-custom\nunit.framework.dll</HintPath>
     </Reference>
