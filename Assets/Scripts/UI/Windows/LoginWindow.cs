@@ -223,7 +223,12 @@ public class LoginWindow : Window
             canisterId = Principal.FromText("bkyz2-fmaaa-aaaaa-qaaaq-cai");
         }
         var client = new SoccerSimClientApiClient(agent, canisterId);
-        var result = await client.PlayMatch((ulong) DateTime.Now.Millisecond);// 110174);
+        await client.StartMatch();
+        var result = "Resume";
+        while (result == "Resume")
+        {
+            result = await client.PlayMatch((ulong)DateTime.Now.Millisecond, 20);// 110174);
+        }
         PlayerPrefs.SetString("snapshot", result);
         SceneManager.LoadScene("MatchField", LoadSceneMode.Single);
     }

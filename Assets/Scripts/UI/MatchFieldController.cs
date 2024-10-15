@@ -16,7 +16,7 @@ public class MatchFieldController : MonoBehaviour
 
     int currentscrn = 0;
     int rndrcount = 0;
-    int RNDRRATE = 60;
+    int RNDRRATE = 10;
 
     static float xunitperpixel = 26f / 5.5f;
     static float yunitperpixel = 13f / 3.5f;
