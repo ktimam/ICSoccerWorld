@@ -211,7 +211,7 @@ public class LoginWindow : Window
     {
         var agent = new HttpAgent();
         //ic network
-        Principal canisterId = Principal.FromText("pcxn6-vyaaa-aaaal-ac2xq-cai");
+        Principal canisterId = Principal.FromText("hvs4k-naaaa-aaaag-amk5a-cai");
         if(!live)
         {
             var httpClient = new DefaultHttpClient(new HttpClient

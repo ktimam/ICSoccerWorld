@@ -2552,7 +2552,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8ed2378a1359d34bac2740e8c631642, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  live: 0
+  live: 1
   incrementBtn: {fileID: 0}
   doubleBtn: {fileID: 0}
   getBtn: {fileID: 0}
