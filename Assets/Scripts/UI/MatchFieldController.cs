@@ -50,8 +50,13 @@ public class MatchFieldController : MonoBehaviour
         }
     }
 
+
     // Update is called once per frame
     void Update()
+    {
+    }
+
+    void FixedUpdate()
     {
         if (screensnaps.scrnsnaps.Length <= currentscrn)
         {
@@ -59,10 +64,10 @@ public class MatchFieldController : MonoBehaviour
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
             return;
         }
-        if (rndrcount++ % RNDRRATE != 1)
-        {
-            return;
-        }
+        //if (rndrcount++ % RNDRRATE != 1)
+        //{
+        //    return;
+        //}
             
         ScreenSnap scrn = screensnaps.scrnsnaps[currentscrn++];
         for (int i = 0; i < 3; i++)

@@ -1,60 +1,73 @@
-using TxIndex__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Timestamp = System.UInt64;
-using Subaccount__1 = System.Collections.Generic.List<System.Byte>;
-using Subaccount = System.Collections.Generic.List<System.Byte>;
-using QueryArchiveFn = EdjCase.ICP.Candid.Models.Values.CandidFunc;
-using Memo = System.Collections.Generic.List<System.Byte>;
-using Balance__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance = EdjCase.ICP.Candid.Models.UnboundedUInt;
 using EdjCase.ICP.Candid.Mapping;
 using EdjCase.ICP.Candid.Models;
+using System.Collections.Generic;
 using Candid.IcrcLedger.Models;
+using Timestamp = System.UInt64;
 
 namespace Candid.IcrcLedger.Models
 {
 	public class ApproveArgs
 	{
-		[CandidName("amount")]
-		public Balance__1 Amount { get; set; }
+		[CandidName("fee")]
+		public OptionalValue<UnboundedUInt> Fee { get; set; }
+
+		[CandidName("memo")]
+		public OptionalValue<List<byte>> Memo { get; set; }
+
+		[CandidName("from_subaccount")]
+		public OptionalValue<List<byte>> FromSubaccount { get; set; }
 
 		[CandidName("created_at_time")]
-		public OptionalValue<ulong> CreatedAtTime { get; set; }
+		public ApproveArgs.CreatedAtTimeInfo CreatedAtTime { get; set; }
+
+		[CandidName("amount")]
+		public UnboundedUInt Amount { get; set; }
 
 		[CandidName("expected_allowance")]
 		public OptionalValue<UnboundedUInt> ExpectedAllowance { get; set; }
 
 		[CandidName("expires_at")]
-		public OptionalValue<ulong> ExpiresAt { get; set; }
-
-		[CandidName("fee")]
-		public OptionalValue<Balance__1> Fee { get; set; }
-
-		[CandidName("from_subaccount")]
-		public OptionalValue<Subaccount__1> FromSubaccount { get; set; }
-
-		[CandidName("memo")]
-		public OptionalValue<Memo> Memo { get; set; }
+		public ApproveArgs.ExpiresAtInfo ExpiresAt { get; set; }
 
 		[CandidName("spender")]
-		public Account__1 Spender { get; set; }
+		public Account Spender { get; set; }
 
-		public ApproveArgs(Balance__1 amount, OptionalValue<ulong> createdAtTime, OptionalValue<UnboundedUInt> expectedAllowance, OptionalValue<ulong> expiresAt, OptionalValue<Balance__1> fee, OptionalValue<Subaccount__1> fromSubaccount, OptionalValue<Memo> memo, Account__1 spender)
+		public ApproveArgs(OptionalValue<UnboundedUInt> fee, OptionalValue<List<byte>> memo, OptionalValue<List<byte>> fromSubaccount, ApproveArgs.CreatedAtTimeInfo createdAtTime, UnboundedUInt amount, OptionalValue<UnboundedUInt> expectedAllowance, ApproveArgs.ExpiresAtInfo expiresAt, Account spender)
 		{
-			this.Amount = amount;
+			this.Fee = fee;
+			this.Memo = memo;
+			this.FromSubaccount = fromSubaccount;
 			this.CreatedAtTime = createdAtTime;
+			this.Amount = amount;
 			this.ExpectedAllowance = expectedAllowance;
 			this.ExpiresAt = expiresAt;
-			this.Fee = fee;
-			this.FromSubaccount = fromSubaccount;
-			this.Memo = memo;
 			this.Spender = spender;
 		}
 
 		public ApproveArgs()
 		{
+		}
+
+		public class CreatedAtTimeInfo : OptionalValue<Timestamp>
+		{
+			public CreatedAtTimeInfo()
+			{
+			}
+
+			public CreatedAtTimeInfo(Timestamp value) : base(value)
+			{
+			}
+		}
+
+		public class ExpiresAtInfo : OptionalValue<Timestamp>
+		{
+			public ExpiresAtInfo()
+			{
+			}
+
+			public ExpiresAtInfo(Timestamp value) : base(value)
+			{
+			}
 		}
 	}
 }

@@ -18,7 +18,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         }
     }
 
-    protected virtual void Awake()
+    protected void Awake()
     {
         if (instance == null)
         {
@@ -36,7 +36,20 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
                 //                    Debug.Log($"A older instance already exist, so instance in {gameObject.name} will be destroyed");
                 //#endif
                 Destroy(gameObject);
+                return;
             }
         }
+
+        Awake_();
     }
+
+    protected void OnDestroy()
+    {
+        if (instance != this) return;
+
+        OnDestroy_();
+    }
+
+    protected abstract void Awake_();
+    protected abstract void OnDestroy_();
 }

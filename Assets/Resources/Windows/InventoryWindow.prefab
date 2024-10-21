@@ -137,7 +137,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tryBindToButton: 1
   title: This is the INVENTORY window
-  description: Here you can view entities you own of type "item"
+  description: Here you can view entities you own of config field of "tag" equal
+    to "item"
 --- !u!1 &2245706241510554994
 GameObject:
   m_ObjectHideFlags: 0

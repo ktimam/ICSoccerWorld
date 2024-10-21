@@ -4,21 +4,25 @@ namespace Boom.Utility
 
     public static class DebugUtil
     {
+        public static bool enableBoomLogs = true;
         public static void Log(this string value, string source = "")
         {
-//#if UNITY_EDITOR
+            //#if UNITY_EDITOR
+            if (enableBoomLogs == false) return;
             Debug.Log($"> Message = from: {source}, content: {value}");
             //#endif
         }
         public static void Warning(this string value, string source = "")
         {
             //#if UNITY_EDITOR
+            if (enableBoomLogs == false) return;
             Debug.LogWarning($"> Warning = from: {source}, content: {value}");
             //#endif
         }
         public static void Error(this string value, string source = "")
         {
             //#if UNITY_EDITOR
+            if (enableBoomLogs == false) return;
             Debug.LogError($"> Error = from: {source}, content: {value}");
             //#endif
         }

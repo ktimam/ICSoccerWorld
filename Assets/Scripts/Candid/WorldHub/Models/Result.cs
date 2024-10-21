@@ -1,20 +1,17 @@
-using TokenIndex = System.UInt32;
-using TokenIdentifier = System.String;
-using AccountIdentifier = System.String;
 using EdjCase.ICP.Candid.Mapping;
 using Candid.WorldHub.Models;
 using System;
 
 namespace Candid.WorldHub.Models
 {
-	[Variant(typeof(ResultTag))]
+	[Variant]
 	public class Result
 	{
-		[VariantTagProperty()]
+		[VariantTagProperty]
 		public ResultTag Tag { get; set; }
 
-		[VariantValueProperty()]
-		public System.Object? Value { get; set; }
+		[VariantValueProperty]
+		public object? Value { get; set; }
 
 		public Result(ResultTag tag, object? value)
 		{
@@ -60,10 +57,8 @@ namespace Candid.WorldHub.Models
 	public enum ResultTag
 	{
 		[CandidName("err")]
-		[VariantOptionType(typeof(string))]
 		Err,
 		[CandidName("ok")]
-		[VariantOptionType(typeof(string))]
 		Ok
 	}
 }

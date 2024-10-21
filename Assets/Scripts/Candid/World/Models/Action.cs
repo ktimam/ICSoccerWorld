@@ -1,31 +1,29 @@
-using worldId = System.String;
-using quantity = System.Double;
-using groupId = System.String;
-using entityId = System.String;
-using duration = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using attribute = System.String;
-using BlockIndex = System.UInt64;
 using EdjCase.ICP.Candid.Mapping;
 using EdjCase.ICP.Candid.Models;
+using Candid.World.Models;
 
 namespace Candid.World.Models
 {
 	public class Action
 	{
-		[CandidName("actionCount")]
-		public UnboundedUInt ActionCount { get; set; }
+		[CandidName("aid")]
+		public string Aid { get; set; }
 
-		[CandidName("actionId")]
-		public string ActionId { get; set; }
+		[CandidName("callerAction")]
+		public OptionalValue<SubAction> CallerAction { get; set; }
 
-		[CandidName("intervalStartTs")]
-		public UnboundedUInt IntervalStartTs { get; set; }
+		[CandidName("targetAction")]
+		public OptionalValue<SubAction> TargetAction { get; set; }
 
-		public Action(UnboundedUInt actionCount, string actionId, UnboundedUInt intervalStartTs)
+		[CandidName("worldAction")]
+		public OptionalValue<SubAction> WorldAction { get; set; }
+
+		public Action(string aid, OptionalValue<SubAction> callerAction, OptionalValue<SubAction> targetAction, OptionalValue<SubAction> worldAction)
 		{
-			this.ActionCount = actionCount;
-			this.ActionId = actionId;
-			this.IntervalStartTs = intervalStartTs;
+			this.Aid = aid;
+			this.CallerAction = callerAction;
+			this.TargetAction = targetAction;
+			this.WorldAction = worldAction;
 		}
 
 		public Action()

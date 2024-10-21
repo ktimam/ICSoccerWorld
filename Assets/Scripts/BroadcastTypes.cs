@@ -1,113 +1,59 @@
-using System;
-using System.Collections.Generic;
-using EdjCase.ICP.Agent.Agents;
-using Boom.Patterns.Broadcasts;
-using UnityEngine;
-using UnityEngine.Scripting;
-
-public enum DataState
+namespace Boom
 {
-    None, Loading, Ready
-}
-public interface IDataState { }
-public class DataState<T> : IBroadcastState where T : IDataState, new()
-{
-    public DataState State { get; private set; } = DataState.None;
-    public string LoadingMsg { get; private set; } = "";
-    public T data;
+    using System;
+    using System.Collections.Generic;
+    using Boom.Patterns.Broadcasts;
+    using Boom.Values;
 
-    public DataState()
-    {
-        State = DataState.None;
-        this.data = new();
-    }
-    public DataState(T data)
-    {
-        State = DataState.Ready;
-        this.data = data;
-    }
+    #region Login
+    public struct UserLoginRequest : IBroadcast { }
+    public struct UserLogout : IBroadcast { }
 
-    public void Clear()
+    #endregion
+    
+    public struct FetchDataReq<T> : IBroadcast where T : DataTypeRequestArgs.Base
     {
-        LoadingMsg = "";
-        data = new();
-        State = DataState.None;
-    }
-    public bool IsLoading()
-    {
-        return State == DataState.Loading;
-    }
-    public bool IsReady()
-    {
-        return State == DataState.Ready;
-    }
-    public bool IsNull()
-    {
-        return State == DataState.None;
-    }
+        public T arg;
 
-    public void SetAsLoading(string loadingMsg = "Loading...")
-    {
-        this.LoadingMsg = loadingMsg;
-        State = DataState.Loading;
-    }
-    public void SetAsReady(T data)
-    {
-        LoadingMsg = "";
-        this.data = data;
-        State = DataState.Ready;
-    }
-}
-public class Data<T> : IDataState
-{
-    public Dictionary<string, T> elements;
-    public Data()
-    {
-        this.elements = new();
-    }
-    public Data(List<T> elements, Func<T, string> getKey)
-    {
-        elements ??= new();
-        this.elements = new();
-
-        foreach (var item in elements)
+        public FetchDataReq(T arg)
         {
-            this.elements.Add(getKey(item), item);
+            this.arg = arg;
         }
     }
-    public Data(Data<T> tokenData, Func<T, string> getKey, params T[] tokensUpdate)
+    public struct DataLoadingState<T> : IBroadcastState where T : DataTypes.Base
     {
-        tokenData.elements ??= new();
-        elements = tokenData.elements;
+        public bool isLoading;
 
-        if (tokensUpdate == null) return;
-
-        foreach (var item in tokensUpdate)
+        public DataLoadingState(bool isLoading)
         {
-            string key = getKey(item);
+            this.isLoading = isLoading;
+        }
 
-            if (elements.ContainsKey(key))
-            {
-                elements[key] = item;
-            }
-            else elements.Add(key, item);
+        public int MaxSavedStatesCount()
+        {
+            return 0;
         }
     }
-}
+    public struct FetchListings : IBroadcast { }
 
-public struct WaitingForResponse : IBroadcastState
-{
-    public bool value;
-    public string waitingMessage;
-
-    public WaitingForResponse(bool disable, string waitingMessage = "")
+    public struct WaitingForResponse : IBroadcastState
     {
-        this.value = disable;
-        this.waitingMessage = waitingMessage;
-    }
-}
+        public bool value;
+        public string waitingMessage;
 
-#region MarketPlace
+        public WaitingForResponse(bool disable, string waitingMessage = "")
+        {
+            this.value = disable;
+            this.waitingMessage = waitingMessage;
+        }
+
+        public int MaxSavedStatesCount()
+        {
+            return 0;
+        }
+    }
+
+    #region MarketPlace
     public struct ListingNftState : IBroadcastState
     {
         public bool isListing;
@@ -115,6 +61,11 @@ public struct WaitingForResponse : IBroadcastState
         public ListingNftState(bool isListing)
         {
             this.isListing = isListing;
+        }
+
+        public int MaxSavedStatesCount()
+        {
+            return 0;
         }
     }
     public struct PurchasingNftState : IBroadcastState
@@ -125,40 +76,86 @@ public struct WaitingForResponse : IBroadcastState
         {
             this.isPurchasing = isPurchasing;
         }
+
+        public int MaxSavedStatesCount()
+        {
+            return 0;
+        }
     }
-#endregion
+    #endregion
 
-#region Fetch Data Request
-public struct FetchDataReq<T> : IBroadcast where T : DataTypes.Base
-{
-    public object optional;
 
-    public FetchDataReq(object optional)
+    public struct ActionExecutionState : IBroadcastState
     {
-        this.optional = optional;
+        public string actionId;
+        public bool inProcess;
+
+        public ActionExecutionState(string actionId, bool inProcess)
+        {
+            this.actionId = actionId;
+            this.inProcess = inProcess;
+        }
+
+        public int MaxSavedStatesCount()
+        {
+            return 0;
+        }
     }
-}
 
-#endregion
-
-#region User
-public struct StartLogin: IBroadcast
-{
-}
-public struct LoginData: IDataState
-{
-    public IAgent agent;
-    public string principal;
-    public string accountIdentifier;
-    public bool asAnon;
-    public LoginData(IAgent agent, string principal, string accountIdentifier, bool asAnon)
+    public interface IDisposable
     {
-        this.agent = agent;
-        this.principal = principal;
-        this.accountIdentifier = accountIdentifier;
-        this.asAnon = asAnon;
+        public void ScheduleDisposal();
+        public bool CanDispose();
+    }
+    public class Data<T> : IBroadcastState where T : IDisposable
+    {
+        private string owner;
+        public Dictionary<string, T> elements;
+
+        public Data()
+        {
+            this.owner = "";
+            this.elements = new();
+        }
+
+        public Data(string owner, Data<T> data, Func<T, string> getKey, params T[] tokensUpdate)
+        {
+            this.owner = owner;
+            data.elements ??= new();
+            elements = data.elements;
+
+            if (tokensUpdate == null) return;
+
+            foreach (var item in tokensUpdate)
+            {
+                string key = getKey(item);
+
+                if (!item.CanDispose())
+                {
+                    if (elements.ContainsKey(key))
+                    {
+                        elements[key] = item;
+                    }
+                    else elements.Add(key, item);
+                }
+                else
+                {
+                    if (elements.ContainsKey(key))
+                    {
+                        elements.Remove(key);
+                    }
+                }
+            }
+        }
+
+        public void Clear()
+        {
+            elements = new();
+        }
+
+        public int MaxSavedStatesCount()
+        {
+            return 1;
+        }
     }
 }
-
-public struct UserLogout : IBroadcast { }
-#endregion

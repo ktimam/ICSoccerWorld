@@ -117,18 +117,18 @@
         /// <param name="match"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        public static bool TryLocate<T>(this IEnumerable<T> arr, Predicate<T> match, out T returnValue)
+        public static bool TryLocate<T>(this IEnumerable<T> arr, Predicate<T> match, out T outValue)
         {
             foreach (T item in arr)
             {
                 if (match(item))
                 {
-                    returnValue = item;
+                    outValue = item;
                     return true;
                 }
 
             }
-            returnValue = default;
+            outValue = default;
             return false;
         }
 
@@ -140,6 +140,15 @@
         public static void Iterate<T>(this IEnumerable<T> arr, Action<T> action)
         {
             foreach (T item in arr) action(item);
+        }
+        public static void Iterate<T>(this IEnumerable<T> arr, Action<T, int> action)
+        {
+            int index = 0;
+            foreach (T item in arr)
+            {
+                action(item, index);
+                ++index;
+            }
         }
 
         /// <summary>
@@ -197,6 +206,16 @@
                 foreach (var element in keyValue.Value)
                 {
                     yield return new KeyValue<K, R>(keyValue.Key, element);
+                }
+            }
+        }
+        public static IEnumerable<T> Merge<T>(this IEnumerable<IEnumerable<T>> arr)
+        {
+            foreach (IEnumerable<T> subArr in arr)
+            {
+                foreach (T item in subArr)
+                {
+                    yield return (item);
                 }
             }
         }

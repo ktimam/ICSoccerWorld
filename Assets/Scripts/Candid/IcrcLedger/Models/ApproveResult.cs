@@ -1,29 +1,18 @@
-using TxIndex__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Timestamp = System.UInt64;
-using Subaccount__1 = System.Collections.Generic.List<System.Byte>;
-using Subaccount = System.Collections.Generic.List<System.Byte>;
-using QueryArchiveFn = EdjCase.ICP.Candid.Models.Values.CandidFunc;
-using Memo = System.Collections.Generic.List<System.Byte>;
-using Balance__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance = EdjCase.ICP.Candid.Models.UnboundedUInt;
 using EdjCase.ICP.Candid.Mapping;
 using Candid.IcrcLedger.Models;
-using EdjCase.ICP.Candid.Models;
 using System;
+using BlockIndex = EdjCase.ICP.Candid.Models.UnboundedUInt;
 
 namespace Candid.IcrcLedger.Models
 {
-	[Variant(typeof(ApproveResultTag))]
+	[Variant]
 	public class ApproveResult
 	{
-		[VariantTagProperty()]
+		[VariantTagProperty]
 		public ApproveResultTag Tag { get; set; }
 
-		[VariantValueProperty()]
-		public System.Object? Value { get; set; }
+		[VariantValueProperty]
+		public object? Value { get; set; }
 
 		public ApproveResult(ApproveResultTag tag, object? value)
 		{
@@ -35,26 +24,26 @@ namespace Candid.IcrcLedger.Models
 		{
 		}
 
+		public static ApproveResult Ok(BlockIndex info)
+		{
+			return new ApproveResult(ApproveResultTag.Ok, info);
+		}
+
 		public static ApproveResult Err(ApproveError info)
 		{
 			return new ApproveResult(ApproveResultTag.Err, info);
 		}
 
-		public static ApproveResult Ok(UnboundedUInt info)
+		public BlockIndex AsOk()
 		{
-			return new ApproveResult(ApproveResultTag.Ok, info);
+			this.ValidateTag(ApproveResultTag.Ok);
+			return (BlockIndex)this.Value!;
 		}
 
 		public ApproveError AsErr()
 		{
 			this.ValidateTag(ApproveResultTag.Err);
 			return (ApproveError)this.Value!;
-		}
-
-		public UnboundedUInt AsOk()
-		{
-			this.ValidateTag(ApproveResultTag.Ok);
-			return (UnboundedUInt)this.Value!;
 		}
 
 		private void ValidateTag(ApproveResultTag tag)
@@ -68,9 +57,7 @@ namespace Candid.IcrcLedger.Models
 
 	public enum ApproveResultTag
 	{
-		[VariantOptionType(typeof(ApproveError))]
-		Err,
-		[VariantOptionType(typeof(UnboundedUInt))]
-		Ok
+		Ok,
+		Err
 	}
 }

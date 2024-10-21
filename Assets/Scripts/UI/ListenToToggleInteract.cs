@@ -1,7 +1,5 @@
 using Boom.Patterns.Broadcasts;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Boom;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,7 +16,7 @@ public class ListenToToggleInteract : MonoBehaviour
     {
         btn = GetComponent<Button>();
 
-        BroadcastState.Register<WaitingForResponse>(AllowButtonInteractionHandler, true);
+        BroadcastState.Register<WaitingForResponse>(AllowButtonInteractionHandler, new() { invokeOnRegistration = true });
     }
 
     private void OnDestroy()

@@ -1,29 +1,21 @@
-using TxIndex__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Timestamp = System.UInt64;
-using Subaccount__1 = System.Collections.Generic.List<System.Byte>;
-using Subaccount = System.Collections.Generic.List<System.Byte>;
-using QueryArchiveFn = EdjCase.ICP.Candid.Models.Values.CandidFunc;
-using Memo = System.Collections.Generic.List<System.Byte>;
-using Balance__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance = EdjCase.ICP.Candid.Models.UnboundedUInt;
 using EdjCase.ICP.Candid.Mapping;
 using Candid.IcrcLedger.Models;
 using System;
 using EdjCase.ICP.Candid.Models;
+using BlockIndex = EdjCase.ICP.Candid.Models.UnboundedUInt;
+using Timestamp = System.UInt64;
+using Tokens = EdjCase.ICP.Candid.Models.UnboundedUInt;
 
 namespace Candid.IcrcLedger.Models
 {
-	[Variant(typeof(TransferFromErrorTag))]
+	[Variant]
 	public class TransferFromError
 	{
-		[VariantTagProperty()]
+		[VariantTagProperty]
 		public TransferFromErrorTag Tag { get; set; }
 
-		[VariantValueProperty()]
-		public System.Object? Value { get; set; }
+		[VariantValueProperty]
+		public object? Value { get; set; }
 
 		public TransferFromError(TransferFromErrorTag tag, object? value)
 		{
@@ -35,14 +27,29 @@ namespace Candid.IcrcLedger.Models
 		{
 		}
 
+		public static TransferFromError BadFee(TransferFromError.BadFeeInfo info)
+		{
+			return new TransferFromError(TransferFromErrorTag.BadFee, info);
+		}
+
 		public static TransferFromError BadBurn(TransferFromError.BadBurnInfo info)
 		{
 			return new TransferFromError(TransferFromErrorTag.BadBurn, info);
 		}
 
-		public static TransferFromError BadFee(TransferFromError.BadFeeInfo info)
+		public static TransferFromError InsufficientFunds(TransferFromError.InsufficientFundsInfo info)
 		{
-			return new TransferFromError(TransferFromErrorTag.BadFee, info);
+			return new TransferFromError(TransferFromErrorTag.InsufficientFunds, info);
+		}
+
+		public static TransferFromError InsufficientAllowance(TransferFromError.InsufficientAllowanceInfo info)
+		{
+			return new TransferFromError(TransferFromErrorTag.InsufficientAllowance, info);
+		}
+
+		public static TransferFromError TooOld()
+		{
+			return new TransferFromError(TransferFromErrorTag.TooOld, null);
 		}
 
 		public static TransferFromError CreatedInFuture(TransferFromError.CreatedInFutureInfo info)
@@ -55,29 +62,20 @@ namespace Candid.IcrcLedger.Models
 			return new TransferFromError(TransferFromErrorTag.Duplicate, info);
 		}
 
-		public static TransferFromError GenericError(TransferFromError.GenericErrorInfo info)
-		{
-			return new TransferFromError(TransferFromErrorTag.GenericError, info);
-		}
-
-		public static TransferFromError InsufficientAllowance(TransferFromError.InsufficientAllowanceInfo info)
-		{
-			return new TransferFromError(TransferFromErrorTag.InsufficientAllowance, info);
-		}
-
-		public static TransferFromError InsufficientFunds(TransferFromError.InsufficientFundsInfo info)
-		{
-			return new TransferFromError(TransferFromErrorTag.InsufficientFunds, info);
-		}
-
 		public static TransferFromError TemporarilyUnavailable()
 		{
 			return new TransferFromError(TransferFromErrorTag.TemporarilyUnavailable, null);
 		}
 
-		public static TransferFromError TooOld()
+		public static TransferFromError GenericError(TransferFromError.GenericErrorInfo info)
 		{
-			return new TransferFromError(TransferFromErrorTag.TooOld, null);
+			return new TransferFromError(TransferFromErrorTag.GenericError, info);
+		}
+
+		public TransferFromError.BadFeeInfo AsBadFee()
+		{
+			this.ValidateTag(TransferFromErrorTag.BadFee);
+			return (TransferFromError.BadFeeInfo)this.Value!;
 		}
 
 		public TransferFromError.BadBurnInfo AsBadBurn()
@@ -86,10 +84,16 @@ namespace Candid.IcrcLedger.Models
 			return (TransferFromError.BadBurnInfo)this.Value!;
 		}
 
-		public TransferFromError.BadFeeInfo AsBadFee()
+		public TransferFromError.InsufficientFundsInfo AsInsufficientFunds()
 		{
-			this.ValidateTag(TransferFromErrorTag.BadFee);
-			return (TransferFromError.BadFeeInfo)this.Value!;
+			this.ValidateTag(TransferFromErrorTag.InsufficientFunds);
+			return (TransferFromError.InsufficientFundsInfo)this.Value!;
+		}
+
+		public TransferFromError.InsufficientAllowanceInfo AsInsufficientAllowance()
+		{
+			this.ValidateTag(TransferFromErrorTag.InsufficientAllowance);
+			return (TransferFromError.InsufficientAllowanceInfo)this.Value!;
 		}
 
 		public TransferFromError.CreatedInFutureInfo AsCreatedInFuture()
@@ -110,18 +114,6 @@ namespace Candid.IcrcLedger.Models
 			return (TransferFromError.GenericErrorInfo)this.Value!;
 		}
 
-		public TransferFromError.InsufficientAllowanceInfo AsInsufficientAllowance()
-		{
-			this.ValidateTag(TransferFromErrorTag.InsufficientAllowance);
-			return (TransferFromError.InsufficientAllowanceInfo)this.Value!;
-		}
-
-		public TransferFromError.InsufficientFundsInfo AsInsufficientFunds()
-		{
-			this.ValidateTag(TransferFromErrorTag.InsufficientFunds);
-			return (TransferFromError.InsufficientFundsInfo)this.Value!;
-		}
-
 		private void ValidateTag(TransferFromErrorTag tag)
 		{
 			if (!this.Tag.Equals(tag))
@@ -130,12 +122,27 @@ namespace Candid.IcrcLedger.Models
 			}
 		}
 
+		public class BadFeeInfo
+		{
+			[CandidName("expected_fee")]
+			public Tokens ExpectedFee { get; set; }
+
+			public BadFeeInfo(Tokens expectedFee)
+			{
+				this.ExpectedFee = expectedFee;
+			}
+
+			public BadFeeInfo()
+			{
+			}
+		}
+
 		public class BadBurnInfo
 		{
 			[CandidName("min_burn_amount")]
-			public Balance MinBurnAmount { get; set; }
+			public Tokens MinBurnAmount { get; set; }
 
-			public BadBurnInfo(Balance minBurnAmount)
+			public BadBurnInfo(Tokens minBurnAmount)
 			{
 				this.MinBurnAmount = minBurnAmount;
 			}
@@ -145,17 +152,32 @@ namespace Candid.IcrcLedger.Models
 			}
 		}
 
-		public class BadFeeInfo
+		public class InsufficientFundsInfo
 		{
-			[CandidName("expected_fee")]
-			public Balance ExpectedFee { get; set; }
+			[CandidName("balance")]
+			public Tokens Balance { get; set; }
 
-			public BadFeeInfo(Balance expectedFee)
+			public InsufficientFundsInfo(Tokens balance)
 			{
-				this.ExpectedFee = expectedFee;
+				this.Balance = balance;
 			}
 
-			public BadFeeInfo()
+			public InsufficientFundsInfo()
+			{
+			}
+		}
+
+		public class InsufficientAllowanceInfo
+		{
+			[CandidName("allowance")]
+			public Tokens Allowance { get; set; }
+
+			public InsufficientAllowanceInfo(Tokens allowance)
+			{
+				this.Allowance = allowance;
+			}
+
+			public InsufficientAllowanceInfo()
 			{
 			}
 		}
@@ -178,9 +200,9 @@ namespace Candid.IcrcLedger.Models
 		public class DuplicateInfo
 		{
 			[CandidName("duplicate_of")]
-			public TxIndex DuplicateOf { get; set; }
+			public BlockIndex DuplicateOf { get; set; }
 
-			public DuplicateInfo(TxIndex duplicateOf)
+			public DuplicateInfo(BlockIndex duplicateOf)
 			{
 				this.DuplicateOf = duplicateOf;
 			}
@@ -208,55 +230,18 @@ namespace Candid.IcrcLedger.Models
 			{
 			}
 		}
-
-		public class InsufficientAllowanceInfo
-		{
-			[CandidName("allowance")]
-			public UnboundedUInt Allowance { get; set; }
-
-			public InsufficientAllowanceInfo(UnboundedUInt allowance)
-			{
-				this.Allowance = allowance;
-			}
-
-			public InsufficientAllowanceInfo()
-			{
-			}
-		}
-
-		public class InsufficientFundsInfo
-		{
-			[CandidName("balance")]
-			public Balance Balance { get; set; }
-
-			public InsufficientFundsInfo(Balance balance)
-			{
-				this.Balance = balance;
-			}
-
-			public InsufficientFundsInfo()
-			{
-			}
-		}
 	}
 
 	public enum TransferFromErrorTag
 	{
-		[VariantOptionType(typeof(TransferFromError.BadBurnInfo))]
-		BadBurn,
-		[VariantOptionType(typeof(TransferFromError.BadFeeInfo))]
 		BadFee,
-		[VariantOptionType(typeof(TransferFromError.CreatedInFutureInfo))]
-		CreatedInFuture,
-		[VariantOptionType(typeof(TransferFromError.DuplicateInfo))]
-		Duplicate,
-		[VariantOptionType(typeof(TransferFromError.GenericErrorInfo))]
-		GenericError,
-		[VariantOptionType(typeof(TransferFromError.InsufficientAllowanceInfo))]
-		InsufficientAllowance,
-		[VariantOptionType(typeof(TransferFromError.InsufficientFundsInfo))]
+		BadBurn,
 		InsufficientFunds,
+		InsufficientAllowance,
+		TooOld,
+		CreatedInFuture,
+		Duplicate,
 		TemporarilyUnavailable,
-		TooOld
+		GenericError
 	}
 }

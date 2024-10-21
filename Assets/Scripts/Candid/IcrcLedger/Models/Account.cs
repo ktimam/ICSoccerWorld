@@ -1,16 +1,7 @@
-using TxIndex__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Timestamp = System.UInt64;
-using Subaccount__1 = System.Collections.Generic.List<System.Byte>;
-using Subaccount = System.Collections.Generic.List<System.Byte>;
-using QueryArchiveFn = EdjCase.ICP.Candid.Models.Values.CandidFunc;
-using Memo = System.Collections.Generic.List<System.Byte>;
-using Balance__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance = EdjCase.ICP.Candid.Models.UnboundedUInt;
 using EdjCase.ICP.Candid.Mapping;
 using EdjCase.ICP.Candid.Models;
+using Candid.IcrcLedger.Models;
+using Subaccount = System.Collections.Generic.List<System.Byte>;
 
 namespace Candid.IcrcLedger.Models
 {
@@ -20,9 +11,9 @@ namespace Candid.IcrcLedger.Models
 		public Principal Owner { get; set; }
 
 		[CandidName("subaccount")]
-		public OptionalValue<Subaccount> Subaccount { get; set; }
+		public Account.SubaccountInfo Subaccount { get; set; }
 
-		public Account(Principal owner, OptionalValue<Subaccount> subaccount)
+		public Account(Principal owner, Account.SubaccountInfo subaccount)
 		{
 			this.Owner = owner;
 			this.Subaccount = subaccount;
@@ -30,6 +21,17 @@ namespace Candid.IcrcLedger.Models
 
 		public Account()
 		{
+		}
+
+		public class SubaccountInfo : OptionalValue<Subaccount>
+		{
+			public SubaccountInfo()
+			{
+			}
+
+			public SubaccountInfo(Subaccount value) : base(value)
+			{
+			}
 		}
 	}
 }

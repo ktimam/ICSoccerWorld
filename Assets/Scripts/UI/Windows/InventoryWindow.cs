@@ -1,8 +1,10 @@
 using Boom.UI;
 using Boom.Utility;
-using Boom.Values;
+using System;
 using TMPro;
 using UnityEngine;
+using Boom;
+using Candid;
 
 public class InventoryWindow : Window
 {
@@ -26,38 +28,41 @@ public class InventoryWindow : Window
         //    Debug.Log($"Window of name {gameObject.name}, requires data, data cannot be null");
         //    return;
         //}
-        UserUtil.RegisterToDataChange<DataTypes.Entity>(UpdateWindow, true);
+        UserUtil.AddListenerDataChangeSelf<DataTypes.Entity>(UpdateWindow, new() { invokeOnRegistration = true });
     }
 
     private void OnDestroy()
     {
-        UserUtil.UnregisterToDataChange<DataTypes.Entity>(UpdateWindow);
+        UserUtil.RemoveListenerDataChangeSelf<DataTypes.Entity>(UpdateWindow);
 
     }
 
-    private void UpdateWindow(DataState<Data<DataTypes.Entity>> state)
+    private void UpdateWindow(Data<DataTypes.Entity> state)
     {
         foreach (Transform child in content.transform)
         {
             Destroy(child.gameObject);
         }
-
-        if (state.IsNull())
+        if (UserUtil.IsDataValidSelf<DataTypes.Entity>() == false)
         {
             loadingText.text = "Nothing in your inventory";
             return;
         }
 
-        if (state.IsLoading())
+        if (BoomManager.Instance.BoomDaoGameType == BoomManager.GameType.SinglePlayer? UserUtil.IsDataLoadingSelf<DataTypes.Entity>() : UserUtil.IsDataValidSelf<DataTypes.Entity>() == false)
         {
+
             loadingText.text = "Loading...";
             return;
         }
 
 
-        int itemsCount = state.data.elements.Count;
+        EntityUtil.TryQueryAllEntitiesFeild<DataTypes.Entity>(EntityUtil.Queries.ownItems, out var entities, e => e);
 
-        if (itemsCount == 0 && state.IsReady())
+
+        int itemsCount = entities.Count;
+
+        if (itemsCount == 0)
         {
             loadingText.text = "Nothing in your inventory";
             return;
@@ -66,19 +71,22 @@ public class InventoryWindow : Window
 
         loadingText.text = "";
 
-        state.data.elements.Iterate(e =>
+        entities.Iterate(e =>
         {
-            if (EntityUtil.GetTag(e.Key).Contains("item"))
+            try
             {
-                if(e.Value.quantity > 0)
+                if(!ConfigUtil.TryGetConfigFieldAs<string>(e, "name", out var configName)) throw new Exception($"Config of id: {e.eid} doesn't have field \"name\"");
+                if (!EntityUtil.TryGetFieldAsDouble(e, "quantity", out var currentQuantity)) throw new Exception($"Element of id : \"{e.GetKey()}\" doesn't have field \"quantity\"");
+
+                if (currentQuantity > 0)
                 {
                     WindowManager.Instance.AddWidgets<InventoryWidget>(new InventoryWidget.WindowData()
-                    { content = $"{EntityUtil.GetName(e.Key, e.Key)} x {e.Value.quantity}" }, content);
+                    { content = $"{configName} x {currentQuantity}" }, content);
                 }
             }
-            else
+            catch (Exception err)
             {
-                Debug.Log($"Element of id : \"{e.Key}\" doesn't have tag \"item\", it has: \"{EntityUtil.GetTag(e.Key)}\"");
+                Debug.LogError(err.Message);
             }
         });
     }

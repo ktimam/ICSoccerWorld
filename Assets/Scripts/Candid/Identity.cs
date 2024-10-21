@@ -7,6 +7,7 @@ using EdjCase.ICP.Agent;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using Boom;
 
 namespace Candid
 {

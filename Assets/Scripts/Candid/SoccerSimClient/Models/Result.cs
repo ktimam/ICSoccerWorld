@@ -5,7 +5,7 @@ using StatusCode = System.UInt16;
 
 namespace SoccerSim.SoccerSimClient.Models
 {
-	[Variant(typeof(ResultTag))]
+	[Variant]
 	public class Result
 	{
 		[VariantTagProperty]

@@ -4,12 +4,12 @@ namespace Boom.UI
     using System.Collections.Generic;
     using UnityEngine;
     using UnityEngine.Events;
-    using Boom.Patterns;
-    using Boom.Patterns.Broadcasts;
     using System;
 
     public class WindowManager : Singleton<WindowManager>
     {
+        public static bool EnableTemplateWindows { get; set; }
+
         readonly Dictionary<string, Window> openedWindows = new();
         [SerializeField, ShowOnly] private int unlockCursorWindowCount;
         public UnityEvent OnCloseAllWindows { get; private set; } = new();
@@ -19,16 +19,44 @@ namespace Boom.UI
         [field: SerializeField, ShowOnly] public bool CursorUnlockByDefault { get; private set; }
         [field: SerializeField, ShowOnly] public bool CursorUnlockByWindowGod { get; private set; }
 
-        protected override void Awake()
-        {
-            var canvas = GetComponent<Canvas>();
-            if (canvas) canvas.sortingOrder = 1000;
-            base.Awake();
-        }
+
 
         private void HideConflictWindows(Window window)
         {
             string typeName = window.GetType().Name;
+
+            foreach (var item in openedWindows)
+            {
+                string key = item.Key;
+                var openedWindow = item.Value;
+
+                var openedWindowConflictWindows = openedWindow.GetConflictWindow();
+
+                if (openedWindowConflictWindows != null)
+                {
+                    foreach (var openedWindowConflictWindow in openedWindowConflictWindows)
+                    {
+                        string conflictWindowTypeName = openedWindowConflictWindow.Name;
+
+                        if (conflictWindowTypeName == typeName)
+                        {
+                            window.gameObject.SetActive(false);
+
+                            if (!hiddenWindows.TryGetValue(typeName, out var conflictWithList))
+                            {
+                                conflictWithList = new();
+                                hiddenWindows.Add(typeName, conflictWithList);
+                            }
+
+                            if (!conflictWithList.Contains(key)) conflictWithList.Add(key);
+
+                            return;
+                        }
+                    }
+                }
+            }
+
+            //
 
             Type[] windows = window.GetConflictWindow();
             if (windows != null)
@@ -76,6 +104,8 @@ namespace Boom.UI
                             conflictWindowList.Remove(currentWindowType);
                             if (conflictWindowList.Count == 0)
                             {
+                                hiddenWindows.Remove(conflictWindowName);
+
                                 if (openedWindows.TryGetValue(conflictWindowName, out Window hiddenWindow))
                                 {
                                     hiddenWindow.gameObject.SetActive(true);
@@ -93,12 +123,15 @@ namespace Boom.UI
             openedWindows.TryGetValue(typeName, out Window baseWindow);
             return baseWindow != null;
         }
-
-        public T OpenWindow<T>(object data, int? orderLayer = null) where T : Window
+        public T OpenWindow<T>(int? orderLayer = null, bool noParent = false) where T : Window
         {
-            return (T) OpenWindow(typeof(T).Name, data, orderLayer);
+            return (T)OpenWindow(typeof(T).Name, null, orderLayer, noParent);
         }
-        public Window OpenWindow(string WindowName, object data, int? orderLayer = null)
+        public T OpenWindow<T>(object data, int? orderLayer = null, bool noParent = false) where T : Window
+        {
+            return (T)OpenWindow(typeof(T).Name, data, orderLayer, noParent);
+        }
+        public Window OpenWindow(string windowName, object data, int? orderLayer = null, bool noParent = false)
         {
             void CheckIfCursorUnlockRequired(bool unlockCursor, bool countIfWindowFirstTime)
             {
@@ -124,8 +157,8 @@ namespace Boom.UI
                 }
             }
 
-            string typeName = WindowName;
-            Debug.Log($"Try Open Window of Type: {typeName}");
+            string typeName = EnableTemplateWindows == false ? windowName : $"{windowName}Template";
+            //Debug.Log($"Try Open Window of Type: {typeName");
 
             if (openedWindows.TryGetValue(typeName, out Window baseWindow) == false)
             {
@@ -138,19 +171,41 @@ namespace Boom.UI
                 }
 
                 //Instantiate
-                baseWindow = Instantiate(baseWindow, transform);
+                baseWindow = Instantiate(baseWindow, noParent ? null : transform);
                 baseWindow.transform.localPosition = Vector3.zero;
             }
 
             if (baseWindow == null)
             {
-                $"Something went wrong trying to open window of type: {typeName}".Log<WindowManager>();
-                return null;
+                if (EnableTemplateWindows == false)
+                {
+                    $"Something went wrong trying to open window of type: {typeName}".Log<WindowManager>();
+                    return null;
+                }
+
+                typeName = windowName;
+                if (openedWindows.TryGetValue(typeName, out baseWindow) == false)
+                {
+                    baseWindow = Resources.Load<Window>($"Windows/{typeName}");
+
+                    if (baseWindow == null)
+                    {
+                        $"Tried to open a window of name '{typeName}' but doesn't lives on Assets/Resources/Windows".Log<WindowManager>();
+                        return null;
+                    }
+
+                    //Instantiate
+                    baseWindow = Instantiate(baseWindow, noParent ? null : transform);
+                    baseWindow.transform.localPosition = Vector3.zero;
+
+                    //if (noParent == false)
+                    //    baseWindow.transform.SetSiblingIndex(baseWindow.transform.parent.childCount - 1);
+                }
             }
 
             var window = baseWindow;
 
-            if(orderLayer != null)
+            if (orderLayer != null)
             {
                 var canvas = window.GetComponent<Canvas>();
                 if (canvas)
@@ -173,22 +228,34 @@ namespace Boom.UI
 
             return window;
         }
-        public T AddWidgets<T>(object data, Transform parent, Vector3 offset = default) where T : Window
+        public T AddWidgets<T>(object data, Transform parent = null, Vector3 offset = default) where T : Window
         {
-            string typeNape = typeof(T).Name;
+            string typeName = EnableTemplateWindows == false ? typeof(T).Name : $"{typeof(T).Name}Template";
 
             if (parent == null)
             {
-                $"Tried to add a widget of name '{typeNape}' but has no parent specified".Log<WindowManager>();
-                return null;
+                parent = transform;
             }
 
-            T window = Resources.Load<T>($"Widgets/{typeNape}");
+            T window = Resources.Load<T>($"Widgets/{typeName}");
 
             if (window == null)
             {
-                $"Tried to add a widget of name '{typeNape}' but doesn't lives on Assets/Resources/Widgets".Log<WindowManager>();
-                return null;
+                if (EnableTemplateWindows == false)
+                {
+                    $"Tried to add a widget of name '{typeName}' but doesn't lives on Assets/Resources/Widgets".Log<WindowManager>();
+                    return null;
+                }
+
+                typeName = typeof(T).Name;
+
+                window = Resources.Load<T>($"Widgets/{typeName}");
+
+                if (window == null)
+                {
+                    $"Tried to add a widget of name '{typeName}' but doesn't lives on Assets/Resources/Widgets".Log<WindowManager>();
+                    return null;
+                }
             }
 
             T objInstance = Instantiate(window, parent);
@@ -247,6 +314,16 @@ namespace Boom.UI
             OnCloseAllWindows.Invoke();
             hiddenWindows.Clear();
             CursorUnlockByDefault = false;
+        }
+
+        protected override void Awake_()
+        {
+
+        }
+
+        protected override void OnDestroy_()
+        {
+
         }
     }
 }

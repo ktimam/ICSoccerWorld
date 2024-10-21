@@ -313,6 +313,9 @@
     <Reference Include="EdjCase.ICP.BLS">
       <HintPath>Assets\Plugins\ICP.Net\EdjCase.ICP.BLS.dll</HintPath>
     </Reference>
+    <Reference Include="Moq">
+      <HintPath>Assets\Plugins\ICP.Net\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="CBOR">
       <HintPath>Assets\Plugins\CBOR.dll</HintPath>
     </Reference>
@@ -334,6 +337,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>Library\PackageCache\com.unity.nuget.newtonsoft-json@3.2.1\Runtime\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="EdjCase.ICP.WebSockets">
+      <HintPath>Assets\Plugins\ICP.Net\EdjCase.ICP.WebSockets.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Plastic.Newtonsoft.Json">
       <HintPath>Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\Unity.Plastic.Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -352,11 +358,20 @@
     <Reference Include="System.Formats.Cbor">
       <HintPath>Assets\Plugins\ICP.Net\System.Formats.Cbor.dll</HintPath>
     </Reference>
+    <Reference Include="Castle.Core">
+      <HintPath>Assets\Plugins\ICP.Net\Castle.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Burst.Unsafe">
       <HintPath>Library\PackageCache\com.unity.burst@1.6.6\Unity.Burst.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Diagnostics.EventLog">
+      <HintPath>Assets\Plugins\ICP.Net\System.Diagnostics.EventLog.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Burst.Cecil.Mdb">
       <HintPath>Library\PackageCache\com.unity.burst@1.6.6\Unity.Burst.CodeGen\Unity.Burst.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows">
+      <HintPath>Assets\Plugins\ICP.Net\System.Security.Principal.Windows.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.TextureAssets">
       <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Editor\VisualScripting.Core\EditorAssetResources\Unity.VisualScripting.TextureAssets.dll</HintPath>
@@ -370,14 +385,14 @@
     <Reference Include="Microsoft.Bcl.HashCode">
       <HintPath>Assets\Plugins\ICP.Net\Microsoft.Bcl.HashCode.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Burst.Cecil.Rocks">
-      <HintPath>Library\PackageCache\com.unity.burst@1.6.6\Unity.Burst.CodeGen\Unity.Burst.Cecil.Rocks.dll</HintPath>
-    </Reference>
     <Reference Include="URIUtility">
       <HintPath>Assets\Plugins\URIUtility.dll</HintPath>
     </Reference>
     <Reference Include="EdjCase.ICP.Candid">
       <HintPath>Assets\Plugins\ICP.Net\EdjCase.ICP.Candid.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Burst.Cecil.Rocks">
+      <HintPath>Library\PackageCache\com.unity.burst@1.6.6\Unity.Burst.CodeGen\Unity.Burst.Cecil.Rocks.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
       <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>

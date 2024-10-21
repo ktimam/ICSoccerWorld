@@ -1,28 +1,18 @@
-using TxIndex__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Timestamp = System.UInt64;
-using Subaccount__1 = System.Collections.Generic.List<System.Byte>;
-using Subaccount = System.Collections.Generic.List<System.Byte>;
-using QueryArchiveFn = EdjCase.ICP.Candid.Models.Values.CandidFunc;
-using Memo = System.Collections.Generic.List<System.Byte>;
-using Balance__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance = EdjCase.ICP.Candid.Models.UnboundedUInt;
 using EdjCase.ICP.Candid.Mapping;
 using Candid.IcrcLedger.Models;
 using System;
+using BlockIndex = EdjCase.ICP.Candid.Models.UnboundedUInt;
 
 namespace Candid.IcrcLedger.Models
 {
-	[Variant(typeof(TransferFromResultTag))]
+	[Variant]
 	public class TransferFromResult
 	{
-		[VariantTagProperty()]
+		[VariantTagProperty]
 		public TransferFromResultTag Tag { get; set; }
 
-		[VariantValueProperty()]
-		public System.Object? Value { get; set; }
+		[VariantValueProperty]
+		public object? Value { get; set; }
 
 		public TransferFromResult(TransferFromResultTag tag, object? value)
 		{
@@ -34,26 +24,26 @@ namespace Candid.IcrcLedger.Models
 		{
 		}
 
+		public static TransferFromResult Ok(BlockIndex info)
+		{
+			return new TransferFromResult(TransferFromResultTag.Ok, info);
+		}
+
 		public static TransferFromResult Err(TransferFromError info)
 		{
 			return new TransferFromResult(TransferFromResultTag.Err, info);
 		}
 
-		public static TransferFromResult Ok(TxIndex__1 info)
+		public BlockIndex AsOk()
 		{
-			return new TransferFromResult(TransferFromResultTag.Ok, info);
+			this.ValidateTag(TransferFromResultTag.Ok);
+			return (BlockIndex)this.Value!;
 		}
 
 		public TransferFromError AsErr()
 		{
 			this.ValidateTag(TransferFromResultTag.Err);
 			return (TransferFromError)this.Value!;
-		}
-
-		public TxIndex__1 AsOk()
-		{
-			this.ValidateTag(TransferFromResultTag.Ok);
-			return (TxIndex__1)this.Value!;
 		}
 
 		private void ValidateTag(TransferFromResultTag tag)
@@ -67,9 +57,7 @@ namespace Candid.IcrcLedger.Models
 
 	public enum TransferFromResultTag
 	{
-		[VariantOptionType(typeof(TransferFromError))]
-		Err,
-		[VariantOptionType(typeof(TxIndex__1))]
-		Ok
+		Ok,
+		Err
 	}
 }

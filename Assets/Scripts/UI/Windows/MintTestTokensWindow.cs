@@ -2,14 +2,12 @@ using Boom.Patterns.Broadcasts;
 using Boom.UI;
 using Boom.Utility;
 using Boom.Values;
-using Candid.IcrcLedger;
-using Candid.World.Models;
 using Cysharp.Threading.Tasks;
-using EdjCase.ICP.Candid.Models;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Boom;
 using UnityEngine;
 using UnityEngine.UI;
+using Candid;
 
 public class MintTestTokensWindow : Window
 {
@@ -43,7 +41,7 @@ public class MintTestTokensWindow : Window
         //await UniTask.SwitchToMainThread();
 
         BroadcastState.Invoke(new WaitingForResponse(true));
-        var actionResult = await ActionUtil.Action.Default(mintNftActionId);
+        var actionResult = await ActionUtil.ProcessAction(mintNftActionId);
 
         if (actionResult.Tag == UResultTag.Err)
         {
@@ -55,9 +53,6 @@ public class MintTestTokensWindow : Window
 
         var resultAsOk = actionResult.AsOk();
         DisplayActionResponse(resultAsOk);
-
-        //UserUtil.RequestData<DataTypes.NftCollection>(new NftCollectionToFetch(Env.Nfts.BOOM_COLLECTION_CANISTER_ID, "Test Nft Collection", false));
-        NftUtil.TryAddMintedNft(resultAsOk.nfts.ToArray());
 
         BroadcastState.Invoke(new WaitingForResponse(false));
 
@@ -69,7 +64,7 @@ public class MintTestTokensWindow : Window
         //await UniTask.SwitchToMainThread();
 
         BroadcastState.Invoke(new WaitingForResponse(true));
-        var actionResult = await ActionUtil.Action.Default(mintIcrcActionId);
+        var actionResult = await ActionUtil.ProcessAction(mintIcrcActionId);
 
         if (actionResult.Tag == UResultTag.Err)
         {
@@ -80,36 +75,9 @@ public class MintTestTokensWindow : Window
             return;
         }
 
-        var resultAsOk = actionResult.AsOk();
-        DisplayActionResponse(resultAsOk);
-
-        var actionConfigResult = UserUtil.GetElementOfType<DataTypes.ActionConfig>(mintIcrcActionId);
-
-        if (actionConfigResult.IsErr)
-        {
-            Debug.LogError(actionConfigResult.AsErr());
-            WindowManager.Instance.OpenWindow<InfoPopupWindow>(new InfoPopupWindow.WindowData("Upss!", actionResult.AsErr().content), 3);
-
-            BroadcastState.Invoke(new WaitingForResponse(false));
-            return;
-        }
-
-        var actionConfig = actionConfigResult.AsOk();
-
-        actionConfig.actionResult.Outcomes.Once(e => e.PossibleOutcomes.Once(k =>
-        {
-            if (k.Option.Tag == ActionOutcomeOption.OptionInfoTag.MintToken)
-            {
-                TokenUtil.IncrementTokenByDecimal(k.Option.AsMintToken().Canister, k.Option.AsMintToken().Quantity);
-            }
-        }));
-
-        //UserUtil.RequestData<DataTypes.Token>(canisterId);
-
+        DisplayActionResponse(actionResult.AsOk());
 
         BroadcastState.Invoke(new WaitingForResponse(false));
-
-        Debug.Log($"Mint ICRC Success, Wait for approval, reward {resultAsOk.tokens.Count}:\n\n " + resultAsOk.tokens.Reduce(e => $"Token canister: {e.Canister}\nQuantity: {e.Quantity}\n\n"));
     }
 
     private void DisplayActionResponse(ProcessedActionResponse resonse)
@@ -118,7 +86,11 @@ public class MintTestTokensWindow : Window
 
         //NFTs
         Dictionary<string, int> collectionsToDisplay = new();
-        resonse.nfts.Iterate(e =>
+
+        if (resonse.callerOutcomes == null) return;
+
+
+        resonse.callerOutcomes.nfts.Iterate(e =>
         {
 
             if (collectionsToDisplay.TryAdd(e.Canister, 1) == false) collectionsToDisplay[e.Canister] += 1;
@@ -127,39 +99,51 @@ public class MintTestTokensWindow : Window
 
         collectionsToDisplay.Iterate(e =>
         {
-            string tokenName = "Some Name";
-            var fetchOwnTokenDataResult = UserUtil.GetElementOfType<DataTypes.NftCollection>(e.Key);
-
-            if (fetchOwnTokenDataResult.IsOk)
+            if (ConfigUtil.TryGetNftCollectionConfig(e.Key, out var collectionConfig) == false)
             {
-                tokenName = fetchOwnTokenDataResult.AsOk().collectionName;
-            }
-            else
-            {
-                tokenName = "Name not Found";
+                return;
             }
 
-            inventoryElements.Add($"{tokenName} x {e.Value}");
+            inventoryElements.Add($"{(collectionConfig != null ? collectionConfig.name : "Name not Found")} x {e.Value}");
         });
 
         //Tokens
-        resonse.tokens.Iterate(e =>
+        resonse.callerOutcomes.tokens.Iterate(e =>
         {
-            string tokenName = "Some Name";
-            var fetchOwnTokenDataResult = UserUtil.GetElementOfType<DataTypes.TokenConfig>(e.Canister);
-
-            if (fetchOwnTokenDataResult.IsOk)
+            if (ConfigUtil.TryGetTokenConfig(e.Canister, out var tokenConfig) == false)
             {
-                tokenName = fetchOwnTokenDataResult.AsOk().name;
-            }
-            else
-            {
-                tokenName = "ICRC";
+                return;
             }
 
-            inventoryElements.Add($"{tokenName} x {e.Quantity}");
+            inventoryElements.Add($"{(tokenConfig != null ? tokenConfig.name : "ICRC")} x {e.Quantity}");
+        });
+
+
+        //ENTITIES
+        resonse.callerOutcomes.entityOutcomes.Iterate(e =>
+        {
+            //NEW EDIT
+            //if (e.Value.fields.Has(k =>
+            //{
+            //    if (k.Value is EntityFieldEdit.Numeric numericOutcome) return numericOutcome.NumericType_ == EntityFieldEdit.Numeric.NumericType.Increment;
+            //    return false;
+            //}) == false) return;
+
+            if (!e.Value.TryGetOutcomeFieldAsDouble("quantity", out var quantity)) return;
+
+            //NEW EDIT
+            string displayValue = "";
+            if (quantity.NumericType_ == EntityFieldEdit.Numeric.NumericType.Set) displayValue = $"{quantity.Value}";
+            else if (quantity.NumericType_ == EntityFieldEdit.Numeric.NumericType.Increment) displayValue = $"+ {quantity.Value}";
+            else displayValue = $"- {quantity.Value}";
+
+            if (!ConfigUtil.TryGetConfigFieldAs<string>(BoomManager.Instance.WORLD_CANISTER_ID, e.Value.eid, "name", out var configName)) return;
+
+            if (e.Value.TryGetConfig(BoomManager.Instance.WORLD_CANISTER_ID, out var config)) inventoryElements.Add($"{configName} {displayValue}");
+            else inventoryElements.Add($"{e.Value.GetKey()} {displayValue}");
         });
 
         WindowManager.Instance.OpenWindow<InventoryPopupWindow>(new InventoryPopupWindow.WindowData("Earned Items", inventoryElements), 3);
     }
+
 }

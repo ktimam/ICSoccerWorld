@@ -1,7 +1,6 @@
 using Boom.Patterns.Broadcasts;
 using Boom.UI;
-using System.Collections;
-using System.Collections.Generic;
+using Boom;
 using UnityEngine;
 
 public class OpenWaitingAnimWindow : MonoBehaviour

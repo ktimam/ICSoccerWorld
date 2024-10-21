@@ -261,6 +261,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a826ba9b8edac440a04bf58a01d1f94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  autoLoginRequested: 0
   url: https://7p3gx-jaaaa-aaaal-acbda-cai.raw.ic0.app/
 --- !u!1 &916876186
 GameObject:
@@ -460,14 +461,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 433d19b1e116451b819e0652fbe4d9bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cachedAnonAgent:
-    <IsInit>k__BackingField: 0
-  cachedUserAddress:
-    value: 
-    <IsInit>k__BackingField: 0
-    <InitialValue>k__BackingField: 
-  paymentHubIdentifier: 
-  stakingHubIdentifier: 
 --- !u!114 &1047092352
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -482,7 +475,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   windowName: LoginWindow
   sortingOrder: 0
-  openOnAwake: 1
+  noParent: 0
+  openOnStart: 1
+  window: {fileID: 0}
 --- !u!114 &1047092353
 MonoBehaviour:
   m_ObjectHideFlags: 0

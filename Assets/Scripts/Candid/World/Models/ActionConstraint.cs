@@ -1,28 +1,30 @@
-using worldId = System.String;
-using quantity = System.Double;
-using groupId = System.String;
-using entityId = System.String;
-using duration = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using attribute = System.String;
-using BlockIndex = System.UInt64;
 using EdjCase.ICP.Candid.Mapping;
-using Candid.World.Models;
 using System.Collections.Generic;
+using Candid.World.Models;
 using EdjCase.ICP.Candid.Models;
+using System;
 
 namespace Candid.World.Models
 {
 	public class ActionConstraint
 	{
 		[CandidName("entityConstraint")]
-		public OptionalValue<List<ActionConstraint.EntityConstraintItemItem>> EntityConstraint { get; set; }
+		public List<EntityConstraint> EntityConstraint { get; set; }
+
+		[CandidName("icrcConstraint")]
+		public List<IcrcTx> IcrcConstraint { get; set; }
+
+		[CandidName("nftConstraint")]
+		public List<NftTx> NftConstraint { get; set; }
 
 		[CandidName("timeConstraint")]
-		public OptionalValue<ActionConstraint.TimeConstraintItem> TimeConstraint { get; set; }
+		public OptionalValue<ActionConstraint.TimeConstraintValue> TimeConstraint { get; set; }
 
-		public ActionConstraint(OptionalValue<List<ActionConstraint.EntityConstraintItemItem>> entityConstraint, OptionalValue<ActionConstraint.TimeConstraintItem> timeConstraint)
+		public ActionConstraint(List<EntityConstraint> entityConstraint, List<IcrcTx> icrcConstraint, List<NftTx> nftConstraint, OptionalValue<ActionConstraint.TimeConstraintValue> timeConstraint)
 		{
 			this.EntityConstraint = entityConstraint;
+			this.IcrcConstraint = icrcConstraint;
+			this.NftConstraint = nftConstraint;
 			this.TimeConstraint = timeConstraint;
 		}
 
@@ -30,61 +32,133 @@ namespace Candid.World.Models
 		{
 		}
 
-		public class EntityConstraintItemItem
+		public class TimeConstraintValue
 		{
-			[CandidName("eid")]
-			public entityId Eid { get; set; }
+			[CandidName("actionExpirationTimestamp")]
+			public OptionalValue<UnboundedUInt> ActionExpirationTimestamp { get; set; }
 
-			[CandidName("equalToAttribute")]
-			public OptionalValue<string> EqualToAttribute { get; set; }
+			[CandidName("actionHistory")]
+			public List<ActionConstraint.TimeConstraintValue.ActionHistoryItem> ActionHistory { get; set; }
 
-			[CandidName("gid")]
-			public groupId Gid { get; set; }
+			[CandidName("actionStartTimestamp")]
+			public OptionalValue<UnboundedUInt> ActionStartTimestamp { get; set; }
 
-			[CandidName("greaterThanOrEqualQuantity")]
-			public OptionalValue<double> GreaterThanOrEqualQuantity { get; set; }
+			[CandidName("actionTimeInterval")]
+			public OptionalValue<ActionConstraint.TimeConstraintValue.ActionTimeIntervalValue> ActionTimeInterval { get; set; }
 
-			[CandidName("lessThanQuantity")]
-			public OptionalValue<double> LessThanQuantity { get; set; }
-
-			[CandidName("notExpired")]
-			public OptionalValue<bool> NotExpired { get; set; }
-
-			[CandidName("wid")]
-			public OptionalValue<worldId> Wid { get; set; }
-
-			public EntityConstraintItemItem(entityId eid, OptionalValue<string> equalToAttribute, groupId gid, OptionalValue<double> greaterThanOrEqualQuantity, OptionalValue<double> lessThanQuantity, OptionalValue<bool> notExpired, OptionalValue<worldId> wid)
+			public TimeConstraintValue(OptionalValue<UnboundedUInt> actionExpirationTimestamp, List<ActionConstraint.TimeConstraintValue.ActionHistoryItem> actionHistory, OptionalValue<UnboundedUInt> actionStartTimestamp, OptionalValue<ActionConstraint.TimeConstraintValue.ActionTimeIntervalValue> actionTimeInterval)
 			{
-				this.Eid = eid;
-				this.EqualToAttribute = equalToAttribute;
-				this.Gid = gid;
-				this.GreaterThanOrEqualQuantity = greaterThanOrEqualQuantity;
-				this.LessThanQuantity = lessThanQuantity;
-				this.NotExpired = notExpired;
-				this.Wid = wid;
+				this.ActionExpirationTimestamp = actionExpirationTimestamp;
+				this.ActionHistory = actionHistory;
+				this.ActionStartTimestamp = actionStartTimestamp;
+				this.ActionTimeInterval = actionTimeInterval;
 			}
 
-			public EntityConstraintItemItem()
+			public TimeConstraintValue()
 			{
 			}
-		}
 
-		public class TimeConstraintItem
-		{
-			[CandidName("actionsPerInterval")]
-			public UnboundedUInt ActionsPerInterval { get; set; }
-
-			[CandidName("intervalDuration")]
-			public UnboundedUInt IntervalDuration { get; set; }
-
-			public TimeConstraintItem(UnboundedUInt actionsPerInterval, UnboundedUInt intervalDuration)
+			[Variant]
+			public class ActionHistoryItem
 			{
-				this.ActionsPerInterval = actionsPerInterval;
-				this.IntervalDuration = intervalDuration;
+				[VariantTagProperty]
+				public ActionConstraint.TimeConstraintValue.ActionHistoryItemTag Tag { get; set; }
+
+				[VariantValueProperty]
+				public object? Value { get; set; }
+
+				public ActionHistoryItem(ActionConstraint.TimeConstraintValue.ActionHistoryItemTag tag, object? value)
+				{
+					this.Tag = tag;
+					this.Value = value;
+				}
+
+				protected ActionHistoryItem()
+				{
+				}
+
+				public static ActionConstraint.TimeConstraintValue.ActionHistoryItem MintNft(MintNft info)
+				{
+					return new ActionConstraint.TimeConstraintValue.ActionHistoryItem(ActionConstraint.TimeConstraintValue.ActionHistoryItemTag.MintNft, info);
+				}
+
+				public static ActionConstraint.TimeConstraintValue.ActionHistoryItem TransferIcrc(TransferIcrc info)
+				{
+					return new ActionConstraint.TimeConstraintValue.ActionHistoryItem(ActionConstraint.TimeConstraintValue.ActionHistoryItemTag.TransferIcrc, info);
+				}
+
+				public static ActionConstraint.TimeConstraintValue.ActionHistoryItem UpdateAction(UpdateAction info)
+				{
+					return new ActionConstraint.TimeConstraintValue.ActionHistoryItem(ActionConstraint.TimeConstraintValue.ActionHistoryItemTag.UpdateAction, info);
+				}
+
+				public static ActionConstraint.TimeConstraintValue.ActionHistoryItem UpdateEntity(UpdateEntity info)
+				{
+					return new ActionConstraint.TimeConstraintValue.ActionHistoryItem(ActionConstraint.TimeConstraintValue.ActionHistoryItemTag.UpdateEntity, info);
+				}
+
+				public MintNft AsMintNft()
+				{
+					this.ValidateTag(ActionConstraint.TimeConstraintValue.ActionHistoryItemTag.MintNft);
+					return (MintNft)this.Value!;
+				}
+
+				public TransferIcrc AsTransferIcrc()
+				{
+					this.ValidateTag(ActionConstraint.TimeConstraintValue.ActionHistoryItemTag.TransferIcrc);
+					return (TransferIcrc)this.Value!;
+				}
+
+				public UpdateAction AsUpdateAction()
+				{
+					this.ValidateTag(ActionConstraint.TimeConstraintValue.ActionHistoryItemTag.UpdateAction);
+					return (UpdateAction)this.Value!;
+				}
+
+				public UpdateEntity AsUpdateEntity()
+				{
+					this.ValidateTag(ActionConstraint.TimeConstraintValue.ActionHistoryItemTag.UpdateEntity);
+					return (UpdateEntity)this.Value!;
+				}
+
+				private void ValidateTag(ActionConstraint.TimeConstraintValue.ActionHistoryItemTag tag)
+				{
+					if (!this.Tag.Equals(tag))
+					{
+						throw new InvalidOperationException($"Cannot cast '{this.Tag}' to type '{tag}'");
+					}
+				}
 			}
 
-			public TimeConstraintItem()
+			public enum ActionHistoryItemTag
 			{
+				[CandidName("mintNft")]
+				MintNft,
+				[CandidName("transferIcrc")]
+				TransferIcrc,
+				[CandidName("updateAction")]
+				UpdateAction,
+				[CandidName("updateEntity")]
+				UpdateEntity
+			}
+
+			public class ActionTimeIntervalValue
+			{
+				[CandidName("actionsPerInterval")]
+				public UnboundedUInt ActionsPerInterval { get; set; }
+
+				[CandidName("intervalDuration")]
+				public UnboundedUInt IntervalDuration { get; set; }
+
+				public ActionTimeIntervalValue(UnboundedUInt actionsPerInterval, UnboundedUInt intervalDuration)
+				{
+					this.ActionsPerInterval = actionsPerInterval;
+					this.IntervalDuration = intervalDuration;
+				}
+
+				public ActionTimeIntervalValue()
+				{
+				}
 			}
 		}
 	}

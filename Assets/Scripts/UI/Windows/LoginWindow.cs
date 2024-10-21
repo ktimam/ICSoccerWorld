@@ -8,15 +8,16 @@ using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
 using Boom.Utility;
-using SoccerSim;
-using Cysharp.Threading.Tasks;
+using Boom;
+using System.Linq;
+using EdjCase.ICP.Agent.Agents.Http;
 using EdjCase.ICP.Agent.Agents;
 using EdjCase.ICP.Candid.Models;
-//using UnityEditor.PackageManager.UI;
 using SoccerSim.SoccerSimClient;
-using EdjCase.ICP.Agent.Agents.Http;
+using static Boom.MainDataTypes;
 using System.Net.Http;
 using UnityEngine.SceneManagement;
+using EdjCase.ICP.BLS;
 
 public class LoginWindow : Window
 {
@@ -36,6 +37,9 @@ public class LoginWindow : Window
     public TextMeshProUGUI loadingTxt;
     public TextMeshProUGUI principalTxt;
     public GameObject pageControl;
+    public GameObject roomsButton;
+
+    Window balanceWindow;
 
     readonly List<Type> typesToLoad = new();
 
@@ -47,42 +51,38 @@ public class LoginWindow : Window
     }
     public override void Setup(object data)
     {
-        UserUtil.RegisterToLoginDataChange(UpdateWindow, true);
-        UserUtil.RegisterToDataChange<DataTypes.Entity>(UpdateWindow);
-        UserUtil.RegisterToDataChange<DataTypes.Action>(UpdateWindow);
-        UserUtil.RegisterToDataChange<DataTypes.Stake>(UpdateWindow);
-        UserUtil.RegisterToDataChange<DataTypes.NftCollection>(UpdateWindow);
+        UserUtil.AddListenerMainDataChange<MainDataTypes.LoginData>(UpdateWindow, new() { invokeOnRegistration = true });
+        UserUtil.AddListenerDataChangeSelf<DataTypes.Entity>(UpdateWindow);
+        UserUtil.AddListenerDataChangeSelf<DataTypes.ActionState>(UpdateWindow);
+        UserUtil.AddListenerDataChangeSelf<DataTypes.NftCollection>(UpdateWindow);
 
-        logInBtn.onClick.AddListener(LogIn);
-        logOutBtn.onClick.AddListener(LogoutUser);
         playMatchBtn.onClick.AddListener(PlayMatch);
 
-        loadingTxt.text = "Loading...";
+        //loadingTxt.text = "Loading...";
         principalTxt.text = "";
+        pageControl.SetActive(false);
 
         typesToLoad.Add(typeof(DataTypes.Entity));
-        typesToLoad.Add(typeof(DataTypes.Action));
-        typesToLoad.Add(typeof(DataTypes.Stake));
+        typesToLoad.Add(typeof(DataTypes.ActionState));
         typesToLoad.Add(typeof(DataTypes.NftCollection));
+
+        //if (BoomManager.Instance.BoomDaoGameType == BoomManager.GameType.SinglePlayer) roomsButton.SetActive(false);
     }
+
 
     private void OnDestroy()
     {
         LoginManager.Instance.CancelLogin();
 
-        logInBtn.onClick.RemoveListener(LogIn);
-        logOutBtn.onClick.RemoveListener(LogoutUser);
-
-        UserUtil.UnregisterToLoginDataChange(UpdateWindow);
-        UserUtil.UnregisterToDataChange<DataTypes.Entity>(UpdateWindow);
-        UserUtil.UnregisterToDataChange<DataTypes.Action>(UpdateWindow);
-        UserUtil.UnregisterToDataChange<DataTypes.Stake>(UpdateWindow);
-        UserUtil.UnregisterToDataChange<DataTypes.NftCollection>(UpdateWindow);
+        UserUtil.RemoveListenerMainDataChange<MainDataTypes.LoginData>(UpdateWindow);
+        UserUtil.RemoveListenerDataChangeSelf<DataTypes.Entity>(UpdateWindow);
+        UserUtil.RemoveListenerDataChangeSelf<DataTypes.ActionState>(UpdateWindow);
+        UserUtil.RemoveListenerDataChangeSelf<DataTypes.NftCollection>(UpdateWindow);
     }
 
-    private void UpdateWindow(DataState<Data<DataTypes.Entity>> state)
+    private void UpdateWindow(Data<DataTypes.Entity> state)
     {
-        if (state.IsReady() && typesToLoad.Count > 0)
+        if (!UserUtil.IsDataLoadingSelf<DataTypes.Entity>() && typesToLoad.Count > 0)
         {
             if (typesToLoad.Contains(typeof(DataTypes.Entity)))
             {
@@ -90,38 +90,25 @@ public class LoginWindow : Window
             }
         }
 
-        var loginDataStateResult = UserUtil.GetLogInDataState();
+        var loginDataStateResult = UserUtil.GetLogInData();
         if (loginDataStateResult.IsOk) UpdateWindow(loginDataStateResult.AsOk());
     }
-    private void UpdateWindow(DataState<Data<DataTypes.Action>> state)
+    private void UpdateWindow(Data<DataTypes.ActionState> state)
     {
-        if (state.IsReady() && typesToLoad.Count > 0)
+        if (!UserUtil.IsDataLoadingSelf<DataTypes.ActionState>() && typesToLoad.Count > 0)
         {
-            if (typesToLoad.Contains(typeof(DataTypes.Action)))
+            if (typesToLoad.Contains(typeof(DataTypes.ActionState)))
             {
-                typesToLoad.Remove(typeof(DataTypes.Action));
+                typesToLoad.Remove(typeof(DataTypes.ActionState));
             }
         }
 
-        var loginDataStateResult = UserUtil.GetLogInDataState();
+        var loginDataStateResult = UserUtil.GetLogInData();
         if (loginDataStateResult.IsOk) UpdateWindow(loginDataStateResult.AsOk());
     }
-    private void UpdateWindow(DataState<Data<DataTypes.Stake>> state)
+    private void UpdateWindow(Data<DataTypes.NftCollection> state)
     {
-        if (state.IsReady() && typesToLoad.Count > 0)
-        {
-            if (typesToLoad.Contains(typeof(DataTypes.Stake)))
-            {
-                typesToLoad.Remove(typeof(DataTypes.Stake));
-            }
-        }
-
-        var loginDataStateResult = UserUtil.GetLogInDataState();
-        if (loginDataStateResult.IsOk) UpdateWindow(loginDataStateResult.AsOk());
-    }
-    private void UpdateWindow(DataState<Data<DataTypes.NftCollection>> state)
-    {
-        if (UserUtil.IsDataValid<DataTypes.NftCollection>(Env.Nfts.BOOM_COLLECTION_CANISTER_ID) && typesToLoad.Count > 0)
+        if (UserUtil.IsDataValidSelf<DataTypes.NftCollection>() && typesToLoad.Count > 0)
         {
             if (typesToLoad.Contains(typeof(DataTypes.NftCollection)))
             {
@@ -129,39 +116,43 @@ public class LoginWindow : Window
             }
         }
 
-        var loginDataStateResult = UserUtil.GetLogInDataState();
+        var loginDataStateResult = UserUtil.GetLogInData();
         if (loginDataStateResult.IsOk) UpdateWindow(loginDataStateResult.AsOk());
     }
 
-    private void UpdateWindow(DataState<LoginData> state)
+    private void UpdateWindow(MainDataTypes.LoginData state)
     {
-        bool isLoading = state.IsLoading();
-        var getIsLoginResult = UserUtil.GetLogInType();
+        var loginDataResult = UserUtil.GetLogInData();
 
-        //logInBtn.interactable = state.IsReady();
-        //logOutBtn.interactable = state.IsReady();
+        //bool isValid = UserUtil.IsDataValid<DataTypes.LoginData>();
+        //if (!isValid) return;
 
-        if (getIsLoginResult.Tag == UResultTag.Ok)
+        bool isLoading = UserUtil.IsLoginRequestedPending();
+
+        if (loginDataResult.IsOk && !isLoading)
         {
-            if(getIsLoginResult.AsOk() == UserUtil.LoginType.User)
+            var loginData = loginDataResult.AsOk();
+            var isLoggedIn = UserUtil.IsLoggedIn();
+
+            if(isLoggedIn)
             {
                 var isUserDataLoaded =
-                    UserUtil.IsDataValid<DataTypes.Entity>() &&
-                    UserUtil.IsDataValid<DataTypes.Action>() &&
-                    UserUtil.IsDataValid<DataTypes.Stake>() &&
-                    UserUtil.IsDataValid<DataTypes.NftCollection>(Env.Nfts.BOOM_COLLECTION_CANISTER_ID);
+                    UserUtil.IsDataValidSelf<DataTypes.Entity>() &&
+                    UserUtil.IsDataValidSelf<DataTypes.ActionState>() &&
+                    UserUtil.IsDataValidSelf<DataTypes.NftCollection>();
 
-                logInBtn.gameObject.SetActive(false);
 
                 if (isUserDataLoaded || (initialized.HasValue && initialized.Value))
                 {
                     initialized = true;
 
                     logInStateTxt.text = "Logged In";
-                    principalTxt.text = $"Principal: <b>\"{state.data.principal}\"</b>\nAccountId: <b>\"{state.data.accountIdentifier}\"</b>";
+                    principalTxt.text = $"Principal: <b>\"{loginData.principal}\"</b>\nAccountId: <b>\"{loginData.accountIdentifier}\"</b>";
                     pageControl.SetActive(true);
-                    logOutBtn.gameObject.SetActive(true);
                     loadingTxt.text = "";
+
+                    if(balanceWindow == null) balanceWindow = WindowManager.Instance.OpenWindow<BalanceWindow>(null, 1000);
+
                 }
                 else
                 {
@@ -173,8 +164,7 @@ public class LoginWindow : Window
                 if (initialized.HasValue && initialized.Value)
                 {
                     typesToLoad.Add(typeof(DataTypes.Entity));
-                    typesToLoad.Add(typeof(DataTypes.Action));
-                    typesToLoad.Add(typeof(DataTypes.Stake));
+                    typesToLoad.Add(typeof(DataTypes.ActionState));
                     typesToLoad.Add(typeof(DataTypes.NftCollection));
                 }
                 initialized = false;
@@ -183,20 +173,19 @@ public class LoginWindow : Window
                 logInStateTxt.text = "";//"Logged in as Anon";
                 principalTxt.text = ""; //$"Principal: <b>\"{state.data.principal}\"</b>\nAccountId: <b>\"{state.data.accountIdentifier}\"</b>";
                 pageControl.SetActive(false);
-                logInBtn.gameObject.SetActive(true);
-                logOutBtn.gameObject.SetActive(false);
                 loadingTxt.text = "Please login";
+
+                if (balanceWindow) balanceWindow.Close();
+
             }
         }
         else
         {
-            if (isLoading) loadingTxt.text = state.LoadingMsg;
-            else loadingTxt.text = "Loading...";
+            if (isLoading) loadingTxt.text = "Loading...";
+            else loadingTxt.text = "";
             logInStateTxt.text = "";
             principalTxt.text = $"";
             pageControl.SetActive(false);
-            logInBtn.gameObject.SetActive(false);
-            logOutBtn.gameObject.SetActive(false);
         }
     }
 
@@ -209,10 +198,16 @@ public class LoginWindow : Window
 
     private async void PlayMatch()
     {
-        var agent = new HttpAgent();
+        var httpclient = new UnityHttpClient();
+#if UNITY_WEBGL && !UNITY_EDITOR
+        var bls = new BypassedBlsCryptography ();
+#else
+        var bls = new WasmBlsCryptography();
+#endif
+        var agent = new HttpAgent(httpclient, bls: bls);
         //ic network
-        Principal canisterId = Principal.FromText("hvs4k-naaaa-aaaag-amk5a-cai");
-        if(!live)
+        Principal canisterId = Principal.FromText("hhult-bqaaa-aaaag-amk6a-cai");
+        if (!live)
         {
             var httpClient = new DefaultHttpClient(new HttpClient
             {
@@ -227,27 +222,9 @@ public class LoginWindow : Window
         var result = "Resume";
         while (result == "Resume")
         {
-            result = await client.PlayMatch((ulong)DateTime.Now.Millisecond, 20);// 110174);
+            result = await client.PlayMatch((ulong)DateTime.Now.Millisecond, 60);// 110174);
         }
         PlayerPrefs.SetString("snapshot", result);
         SceneManager.LoadScene("MatchField", LoadSceneMode.Single);
-    }
-
-    private void LogoutUser()
-    {
-        PlayerPrefs.SetString("authTokenId", string.Empty);
-        Broadcast.Invoke<UserLogout>();
-    }
-
-    //Login
-    public void LogIn()
-    {
-        if (BroadcastState.TryRead<DataState<LoginData>>(out var dataState))
-        {
-            if (dataState.IsLoading()) return;
-        }
-
-        PlayerPrefs.SetString("walletType", "II");
-        UserUtil.StartLogin("Logging In...");
     }
 }

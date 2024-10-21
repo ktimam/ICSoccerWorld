@@ -107,28 +107,28 @@ public class CoroutineManager : Singleton<CoroutineManager>
 
     private void Update()
     {
-        LinkedListNode<Routine> _runner = _routines.First;
+        LinkedListNode<Routine> runner = _routines.First;
 
-        while (_runner != null)
+        while (runner != null)
         {
-            if (_runner.Value.Source != null)
+            if (runner.Value.Source != null)
             {
-                if (_runner.Value.IsReadyToDispose() == false)
+                if (runner.Value.IsReadyToDispose() == false)
                 {
-                    _runner.Value.Execute();
-                    _runner = _runner.Next;
+                    runner.Value.Execute();
+                    runner = runner.Next;
                 }
                 else
                 {
-                    LinkedListNode<Routine> _runnerToDispose = _runner;
-                    _runner = _runner.Next;
+                    LinkedListNode<Routine> _runnerToDispose = runner;
+                    runner = runner.Next;
                     UnregisterRoutine(_runnerToDispose.Value);
                 }
             }
             else
             {
-                LinkedListNode<Routine> _runnerToDispose = _runner;
-                _runner = _runner.Next;
+                LinkedListNode<Routine> _runnerToDispose = runner;
+                runner = runner.Next;
                 UnregisterRoutine(_runnerToDispose.Value);
             }
         }
@@ -188,6 +188,16 @@ public class CoroutineManager : Singleton<CoroutineManager>
                 }
             }
         }
+    }
+
+    protected override void Awake_()
+    {
+
+    }
+
+    protected override void OnDestroy_()
+    {
+
     }
 }
 public static class CoroutineManagerUtil

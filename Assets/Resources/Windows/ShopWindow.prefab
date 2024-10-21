@@ -161,7 +161,7 @@ RectTransform:
   m_Children:
   - {fileID: 1421249574631874515}
   m_Father: {fileID: 5635683262799069197}
-  m_RootOrder: -1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -443,7 +443,7 @@ RectTransform:
   - {fileID: 3560833127563996705}
   - {fileID: 242745697995074903}
   m_Father: {fileID: 8744804969613659410}
-  m_RootOrder: -1
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -552,7 +552,7 @@ RectTransform:
   m_Children:
   - {fileID: 4696794161948478183}
   m_Father: {fileID: 5635683262799069197}
-  m_RootOrder: -1
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
@@ -657,14 +657,17 @@ MonoBehaviour:
   title: This is the SHOP window
   description: 'Here you can:
 
-    -Buy Item1 for some ICP
+    -Buy ItemA for some ICP
 
-    -Buy Item2 for some
+    -Buy ItemB for some
     ICRC
 
-    -Trade Item1 for Item3
+    -Trade ItemB for ItemC
 
-    -Mint a Test Nft for some ICP'
+    -Mint a Test Nft with some ICP
+
+    -Burn
+    a Nft to get some random reward'
 --- !u!1 &4125094241478505999
 GameObject:
   m_ObjectHideFlags: 0
@@ -772,7 +775,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8709908927332937231}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -907,7 +910,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8744804969613659410}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -1046,7 +1049,7 @@ RectTransform:
   - {fileID: 8709908927332937231}
   - {fileID: 6949499128211943179}
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1070,9 +1073,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
-  m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -1106,10 +1107,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actionOfferIds:
-  - buyItem1_Icp
-  - buyItem2_Icrc
-  - buyItem3_Item1
+  - buyItemA_Icp
+  - buyItemB_Icrc
+  - buyItemC_ItemB
   - spend_icp_to_mint_test_nft
+  - burn_nft_tiket
+  - nft_holding_verification
   content: {fileID: 6631525212458899429}
   closeButton: {fileID: 299223244791056358}
   buying: 0

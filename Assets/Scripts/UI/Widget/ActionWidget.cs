@@ -1,16 +1,10 @@
-using Boom.Patterns.Broadcasts;
 using Boom.UI;
-using Candid.World.Models;
-using Candid;
+using Boom.Utility;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using System.IO;
 
 public static class ImageContentType
 {
@@ -67,7 +61,7 @@ public class ActionWidget : Window
         WindowData windowData = (WindowData)data;
         if (windowData == null)
         {
-            Debug.Log($"Window of name {gameObject.name}, requires data, data cannot be null");
+            $"Window of name {gameObject.name}, requires data, data cannot be null".Log();
             return;
         }
 
@@ -103,14 +97,14 @@ public class ActionWidget : Window
         {
             case ImageContentType.Url imageContentType:
 
-                Debug.Log("Load Image Url: " + imageContentType.content);
+                //Debug.Log("Load Image Url: " + imageContentType.content);
                 CoroutineManager.Instance.DownloadImage(image, imageContentType.content);
 
                 break;
             case ImageContentType.Base64Encoding imageContentType:
 
                 string encoding = imageContentType.content.Split(',')[1];
-                Debug.Log("Load Base64 Encoded Image: " + encoding);
+                //Debug.Log("Load Base64 Encoded Image: " + encoding);
 
                 byte[] imageBytes = Convert.FromBase64String(encoding);
                 Texture2D tex = new(2, 2);

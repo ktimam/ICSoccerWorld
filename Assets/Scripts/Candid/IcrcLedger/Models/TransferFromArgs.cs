@@ -1,56 +1,82 @@
-using TxIndex__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Timestamp = System.UInt64;
-using Subaccount__1 = System.Collections.Generic.List<System.Byte>;
-using Subaccount = System.Collections.Generic.List<System.Byte>;
-using QueryArchiveFn = EdjCase.ICP.Candid.Models.Values.CandidFunc;
-using Memo = System.Collections.Generic.List<System.Byte>;
-using Balance__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance = EdjCase.ICP.Candid.Models.UnboundedUInt;
 using EdjCase.ICP.Candid.Mapping;
-using EdjCase.ICP.Candid.Models;
 using Candid.IcrcLedger.Models;
+using EdjCase.ICP.Candid.Models;
+using System.Collections.Generic;
+using Subaccount = System.Collections.Generic.List<System.Byte>;
+using Timestamp = System.UInt64;
+using Tokens = EdjCase.ICP.Candid.Models.UnboundedUInt;
 
 namespace Candid.IcrcLedger.Models
 {
 	public class TransferFromArgs
 	{
-		[CandidName("amount")]
-		public Balance__1 Amount { get; set; }
-
-		[CandidName("created_at_time")]
-		public OptionalValue<ulong> CreatedAtTime { get; set; }
-
-		[CandidName("fee")]
-		public OptionalValue<Balance__1> Fee { get; set; }
+		[CandidName("spender_subaccount")]
+		public TransferFromArgs.SpenderSubaccountInfo SpenderSubaccount { get; set; }
 
 		[CandidName("from")]
-		public Account__1 From { get; set; }
-
-		[CandidName("memo")]
-		public OptionalValue<Memo> Memo { get; set; }
-
-		[CandidName("spender_subaccount")]
-		public OptionalValue<Subaccount__1> SpenderSubaccount { get; set; }
+		public Account From { get; set; }
 
 		[CandidName("to")]
-		public Account__1 To { get; set; }
+		public Account To { get; set; }
 
-		public TransferFromArgs(Balance__1 amount, OptionalValue<ulong> createdAtTime, OptionalValue<Balance__1> fee, Account__1 from, OptionalValue<Memo> memo, OptionalValue<Subaccount__1> spenderSubaccount, Account__1 to)
+		[CandidName("amount")]
+		public Tokens Amount { get; set; }
+
+		[CandidName("fee")]
+		public TransferFromArgs.FeeInfo Fee { get; set; }
+
+		[CandidName("memo")]
+		public OptionalValue<List<byte>> Memo { get; set; }
+
+		[CandidName("created_at_time")]
+		public TransferFromArgs.CreatedAtTimeInfo CreatedAtTime { get; set; }
+
+		public TransferFromArgs(TransferFromArgs.SpenderSubaccountInfo spenderSubaccount, Account from, Account to, Tokens amount, TransferFromArgs.FeeInfo fee, OptionalValue<List<byte>> memo, TransferFromArgs.CreatedAtTimeInfo createdAtTime)
 		{
-			this.Amount = amount;
-			this.CreatedAtTime = createdAtTime;
-			this.Fee = fee;
-			this.From = from;
-			this.Memo = memo;
 			this.SpenderSubaccount = spenderSubaccount;
+			this.From = from;
 			this.To = to;
+			this.Amount = amount;
+			this.Fee = fee;
+			this.Memo = memo;
+			this.CreatedAtTime = createdAtTime;
 		}
 
 		public TransferFromArgs()
 		{
+		}
+
+		public class SpenderSubaccountInfo : OptionalValue<Subaccount>
+		{
+			public SpenderSubaccountInfo()
+			{
+			}
+
+			public SpenderSubaccountInfo(Subaccount value) : base(value)
+			{
+			}
+		}
+
+		public class FeeInfo : OptionalValue<Tokens>
+		{
+			public FeeInfo()
+			{
+			}
+
+			public FeeInfo(Tokens value) : base(value)
+			{
+			}
+		}
+
+		public class CreatedAtTimeInfo : OptionalValue<Timestamp>
+		{
+			public CreatedAtTimeInfo()
+			{
+			}
+
+			public CreatedAtTimeInfo(Timestamp value) : base(value)
+			{
+			}
 		}
 	}
 }

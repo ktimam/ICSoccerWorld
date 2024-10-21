@@ -1,31 +1,18 @@
-using TxIndex__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using TxIndex = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Timestamp = System.UInt64;
-using Subaccount__1 = System.Collections.Generic.List<System.Byte>;
-using Subaccount = System.Collections.Generic.List<System.Byte>;
-using QueryArchiveFn = EdjCase.ICP.Candid.Models.Values.CandidFunc;
-using Memo = System.Collections.Generic.List<System.Byte>;
-using Balance__2 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance__1 = EdjCase.ICP.Candid.Models.UnboundedUInt;
-using Balance = EdjCase.ICP.Candid.Models.UnboundedUInt;
 using EdjCase.ICP.Candid.Mapping;
-using EdjCase.ICP.Candid.Models;
 using Candid.IcrcLedger.Models;
+using EdjCase.ICP.Candid.Models;
 using System.Collections.Generic;
+using Timestamp = System.UInt64;
 
 namespace Candid.IcrcLedger.Models
 {
 	public class Transfer
 	{
-		[CandidName("amount")]
-		public Balance Amount { get; set; }
-
-		[CandidName("created_at_time")]
-		public OptionalValue<ulong> CreatedAtTime { get; set; }
+		[CandidName("to")]
+		public Account To { get; set; }
 
 		[CandidName("fee")]
-		public OptionalValue<Balance> Fee { get; set; }
+		public OptionalValue<UnboundedUInt> Fee { get; set; }
 
 		[CandidName("from")]
 		public Account From { get; set; }
@@ -33,21 +20,39 @@ namespace Candid.IcrcLedger.Models
 		[CandidName("memo")]
 		public OptionalValue<List<byte>> Memo { get; set; }
 
-		[CandidName("to")]
-		public Account To { get; set; }
+		[CandidName("created_at_time")]
+		public Transfer.CreatedAtTimeInfo CreatedAtTime { get; set; }
 
-		public Transfer(Balance amount, OptionalValue<ulong> createdAtTime, OptionalValue<Balance> fee, Account from, OptionalValue<List<byte>> memo, Account to)
+		[CandidName("amount")]
+		public UnboundedUInt Amount { get; set; }
+
+		[CandidName("spender")]
+		public OptionalValue<Account> Spender { get; set; }
+
+		public Transfer(Account to, OptionalValue<UnboundedUInt> fee, Account from, OptionalValue<List<byte>> memo, Transfer.CreatedAtTimeInfo createdAtTime, UnboundedUInt amount, OptionalValue<Account> spender)
 		{
-			this.Amount = amount;
-			this.CreatedAtTime = createdAtTime;
+			this.To = to;
 			this.Fee = fee;
 			this.From = from;
 			this.Memo = memo;
-			this.To = to;
+			this.CreatedAtTime = createdAtTime;
+			this.Amount = amount;
+			this.Spender = spender;
 		}
 
 		public Transfer()
 		{
+		}
+
+		public class CreatedAtTimeInfo : OptionalValue<Timestamp>
+		{
+			public CreatedAtTimeInfo()
+			{
+			}
+
+			public CreatedAtTimeInfo(Timestamp value) : base(value)
+			{
+			}
 		}
 	}
 }

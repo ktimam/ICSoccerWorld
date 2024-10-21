@@ -1,0 +1,134 @@
+===================================================================================================================================================
+
+Current Version: 0.3.4
+
+===================================================================================================================================================
+
+> Release Notes 0.3.4
+
+New Features: 
+
+- You can read the user's Boom Stacking Tier in the MainDataTypes.LoginData.
+- You can read the user's staked NFTs in the Boom Gaming Guilds website  in the DataTypes.StakedNftCollections.
+- You can read the user's badges in the DataTypes.Badge.
+- You can test the TutorialAddRemoveFromList list to test adding and removing fruits from an entity's field list in the player's data and/or in the world's data.
+
+Improvements: 
+
+- None
+
+Fixes: 
+
+- Fixed issue that prevented removing elements from entities' field lists in Unity.
+
+===================================================================================================================================================
+
+> Release Notes 0.3.3
+
+New Features: 
+
+- A new Tutorial "TutorialLeaderboard2" that shows two new ways of implementing leaderboards
+
+Improvements: 
+
+- New entity utilities functions to query easily specific entities
+
+Fixes: 
+
+- Possible fix to parsing values issue when the PC's region is set to Russian
+
+===================================================================================================================================================
+
+> Release Notes 0.3.2
+
+New Features: NONE
+
+Improvements: 
+
+- Boom WebGl template and logging  system upgrade to support hosting games in Web Iframe
+
+Fixes: NONE
+
+===================================================================================================================================================
+
+> Release Notes 0.3.1
+
+New Features: NONE
+
+Improvements: 
+
+- WorldDeployer upgrade
+
+Fixes: NONE
+
+
+===================================================================================================================================================
+
+> Release Notes 0.3.0
+
+New Features: NONE
+
+Improvements: NONE
+
+Fixes:
+
+- Entity Outcome's IDs are now correctly parsed
+- HTML file points to the right login URL
+
+===================================================================================================================================================
+
+> Release Notes 0.2.9
+
+New Features:
+
+- DeployWorld Scene.
+This scene allows you to deploy a World Canister. The Canister Id of the World Canister will be stored on the TemplateBoomSettings scriptable object.
+
+Improvements:
+
+- The Template makes use of the new Login URL link https://7p3gx-jaaaa-aaaal-acbda-cai.icp0.io
+
+- Refactor to the ConfigUtils used to manipulate an action object and to the Action class
+
+- On the Singleton.cs the functions _Awake and _OnDestroy have been renamed to Awake_ and OnDestroy_
+
+- Upgrade of Boom Dao WebGL Template.
+	
+	The game title image URL and the game logo image URL can now be assigned directly from the player's settings window on the Resolution and 
+	Presentation section.
+
+	Guidelines:
+	• Game title image URL: 
+		It must be a hosted image, whose recommended dimension (ratio) is 1:1 and highly recommended image size is 2mb
+		The example (default) image is 417 x 417 px
+	• Game logo image URL: 
+		It must be a hosted image, whose recommended dimension (ratio) is 11:3 and highly recommended image size is 2mb
+		The example (default) image is 344 x 94 px
+
+Fixes:
+
+- Now entity's outcomes of type text can be parsed as variables
+
+===================================================================================================================================================
+
+> Release Notes 0.2.8
+
+New Features:
+
+- Leaderboard Tutorial: https://docs.google.com/document/d/1ZRgaJ74KsEHUuX42ejtuLOMFxdJY-6hlqcDnk5JOrRk/edit
+
+===================================================================================================================================================
+
+> Release Notes 0.2.6 & 0.2.7
+
+Fixes:
+
+- Integration of BypassedBlsCryptography.cs to be used instead of WebGlBlsCryptography.cs
+This fixed the issue with that prevented to login on builds.
+
+===================================================================================================================================================
+
+> Release Notes 0.2.5
+
+Fixes:
+- Upon the creation of an entity, its fields will be set as a new list object as long as the fields to apply to the entity are null

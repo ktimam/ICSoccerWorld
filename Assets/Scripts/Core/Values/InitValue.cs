@@ -21,6 +21,12 @@ namespace Boom.Values
             }
         }
 
+        public InitValue(T value, bool isInit = true) : this()
+        {
+            this.value = value;
+            this.IsInit = isInit;
+        }
+
         [field: SerializeField, ShowOnly] public bool IsInit { get; private set; }
         [field: SerializeField, ShowOnly] public T InitialValue { get; private set; }
     }

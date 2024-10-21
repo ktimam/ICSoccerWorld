@@ -3,12 +3,18 @@ using Boom.Utility;
 using Boom.Values;
 using TMPro;
 using UnityEngine;
+using Boom;
+using Newtonsoft.Json;
+using Candid;
+using static Env;
 
 public class BalanceWindow : Window
 {
+    string icpData;
+    string icrcData;
+    string nftData;
+
     [SerializeField] TextMeshProUGUI icpBalanceText;
-    [SerializeField] TextMeshProUGUI icrcBalances;
-    [SerializeField] TextMeshProUGUI nftCountTxt;
 
     public class WindowData
     {
@@ -21,88 +27,80 @@ public class BalanceWindow : Window
 
     public override void Setup(object data)
     {
-        icpBalanceText.text = $"ICP:  Loading...";
-        icrcBalances.text = $"ICRC: Loading...";
-        nftCountTxt.text = $"NFT Count: {0}";
+        icpBalanceText.text = $"ICP: Loading...\nICRC: Loading...\nNFT Count: Loading...";
 
-        UserUtil.RegisterToDataChange<DataTypes.Token>(UpdateWindow);
-        UserUtil.RegisterToDataChange<DataTypes.NftCollection>(UpdateWindow);
+        UserUtil.AddListenerDataChangeSelf<DataTypes.Token>(UpdateWindow, new() { invokeOnRegistration = true });
+        UserUtil.AddListenerDataChangeSelf<DataTypes.NftCollection>(UpdateWindow);
     }
     private void OnDestroy()
     {
-        UserUtil.UnregisterToDataChange<DataTypes.NftCollection>(UpdateWindow);
-        UserUtil.UnregisterToDataChange<DataTypes.Token>(UpdateWindow);
+        UserUtil.RemoveListenerDataChangeSelf<DataTypes.NftCollection>(UpdateWindow);
+        UserUtil.RemoveListenerDataChangeSelf<DataTypes.Token>(UpdateWindow);
     }
-    private void UpdateWindow(DataState<Data<DataTypes.NftCollection>> obj)
+    private void UpdateWindow(Data<DataTypes.NftCollection> obj)
     {
-        if (!UserUtil.IsUserLoggedIn())
+
+        if (UserUtil.IsDataValidSelf<DataTypes.Token>())
         {
-            nftCountTxt.text = $"NFT Count: 0";
-            return;
+           var tokensResult =  UserUtil.GetDataSelf<DataTypes.Token>();
+
+            if (tokensResult.IsOk)
+            {
+                UpdateWindow(tokensResult.AsOk());
+            }
         }
-
-
-        var nftCountResult = NftUtil.GetNftCount(Env.Nfts.BOOM_COLLECTION_CANISTER_ID);
-
-        if(nftCountResult.Tag == Boom.Values.UResultTag.Err)
-        {
-            Debug.LogWarning(nftCountResult.AsErr());
-            nftCountTxt.text = $"NFT Count: Loading...";
-            return;
-        }
-
-        var nftCount = nftCountResult.AsOk();
-
-        nftCountTxt.text = $"NFT Count: {nftCount}";
     }
 
-    private void UpdateWindow(DataState<Data<DataTypes.Token>> obj)
+    private void UpdateWindow(Data<DataTypes.Token> obj)
     {
-        if (!UserUtil.IsUserLoggedIn())
+        if (!UserUtil.IsLoggedIn(out var loginData))
         {
-            icpBalanceText.text = $"ICP: {0}";
-            icrcBalances.text = $"ICRC: {0}";
+            icpBalanceText.text = $"ICP: {0}\nICRC: {0}\nNFT Count: {0}";
 
             return;
         }
 
-        if (obj.IsLoading())
+        icpData = "ICP: Loading...";
+        icrcData = "ICRC: Loading...";
+        nftData = "NFT Count: Loading...";
+
+        //
+        var allTokenConfigsResult = ConfigUtil.GetAllTokenConfigs();
+
+        if (allTokenConfigsResult.IsErr)
         {
-            icpBalanceText.text = $"ICP: Loading...";
-            icrcBalances.text = $"ICRC: Loading...";
+            $"{allTokenConfigsResult.AsErr()}".Error();
             return;
         }
 
-        //
+        var allTokenConfigsAsOk = allTokenConfigsResult.AsOk();
 
-        var icpTokenAndConfigsResult = UserUtil.GetTokenAndConfigs(Env.CanisterIds.ICP_LEDGER);
-
-        if (icpTokenAndConfigsResult.Tag == UResultTag.Err)
+        allTokenConfigsAsOk.Iterate(tc =>
         {
-            $"{icpTokenAndConfigsResult.AsErr()}".Warning();
-            icpBalanceText.text = $"ICP: {0}";
-        }
-        else
+            var tokenAndConfigsResult = TokenUtil.GetTokenAmountAsDecimal(loginData.principal, tc.canisterId);
+
+            if (Env.CanisterIds.ICP_LEDGER == tc.canisterId)
+            {
+                icpData = $"ICP: {tokenAndConfigsResult.NotScientificNotation()}\n";
+
+            }
+            else
+            {
+                icrcData = $"{tc.name}: {tokenAndConfigsResult.NotScientificNotation()}\n";
+            }
+        });
+
+        var nftCountResult = NftUtil.GetNftCount(loginData.principal, BoomManager.Instance.WORLD_COLLECTION_CANISTER_ID);
+
+        if (nftCountResult.Tag == Boom.Values.UResultTag.Ok)
         {
-            var (token, configs) = icpTokenAndConfigsResult.AsOk();
+            var nftResult = UserUtil.GetDataSelf<DataTypes.NftCollection>();
 
-            icpBalanceText.text = $"ICP: {token.baseUnitAmount.ConvertToDecimal(configs.decimals).NotScientificNotation()}";
+            nftData = $"NFT Count: {nftCountResult.AsOk()}";
         }
 
-        //
 
-        var icrcTokenAndConfigsResult = UserUtil.GetTokenAndConfigs(Env.CanisterIds.ICRC_LEDGER);
+        icpBalanceText.text = $"{icpData}{icrcData}{nftData}";
 
-        if (icrcTokenAndConfigsResult.Tag == UResultTag.Err)
-        {
-            $"{icrcTokenAndConfigsResult.AsErr()}".Warning();
-            icrcBalances.text = $"ICRC: {0}";
-        }
-        else
-        {
-            var (token, configs) = icrcTokenAndConfigsResult.AsOk();
-
-            icrcBalances.text = $"{configs.name}: {token.baseUnitAmount.ConvertToDecimal(configs.decimals).NotScientificNotation()}";
-        }
     }
 }
